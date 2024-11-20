@@ -1,5 +1,17 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    h1= "Namma Bus"
+    h2= "Welcome Travellers! You have successfully completed your first step in reaching your destination."
+    h2= "Kudos! 👏"
+    div 
+        button#redirectSignUp "Sign Up"
+        button#redirectSignIn "Sign In"
+
+    script.
+        document.getElementById("redirectSignUp").addEventListener('click', () => {
+            window.location.href = '/signup';
+        });
+        document.getElementById("redirectSignIn").addEventListener('click', () => {
+            window.location.href = '/signin';
+        });
