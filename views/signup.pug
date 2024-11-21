@@ -1,0 +1,28 @@
+extends layout 
+block content 
+    div
+        form(action="/signup", method="post") 
+            h2 Sign Up 
+            label(for="username") Username 
+            input(type="text" name="username" id="username" placeholder="Enter username" required)
+            br
+            label(for="username") Email 
+            input(type="text" name="email" id="email" placeholder="Enter email" required)
+            br
+            label(for="password") Password 
+            input(type="password" name="password" id="password" placeholder="Enter password" required)
+            br
+            button(type="submit") Sign Up 
+            br
+        div#under-form
+            button#admin-login Log in as Admin?    
+            button#sign-in Sign In
+
+        
+        script.
+            document.getElementById("admin-login").addEventListener('click', () => {
+                window.location.href = '/admin-login';
+            });
+            document.getElementById("sign-in").addEventListener('click', () => {
+                window.location.href = '/signin';
+            });
