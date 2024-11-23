@@ -1,21 +1,21 @@
 {
-  "name": "nammabus",
-  "version": "0.0.0",
-  "private": true,
+  "name": "namma-bus",
+  "version": "1.0.0",
+  "main": "index.js",
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
     "express": "^4.21.1",
-    "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.10.0",
     "mongoose": "^8.8.2",
-    "morgan": "~1.9.1",
-    "nodeman": "^1.1.2",
-    "nodemon": "^3.1.7",
-    "pug": "^3.0.3"
+    "nodemon": "^3.1.7"
   }
 }
