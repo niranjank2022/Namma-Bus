@@ -1,31 +1,31 @@
 const mongoose = require("mongoose");
 
+const bookedUserSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    }
+});
+
 const seatSchema = new mongoose.Schema({
-    seatId: {
+    id: {
         type: String,
         required: true
     },
-    seatType: {
+    class: {
         type: String,
         required: true
     },
-    seatPrice: {
+    price: {
         type: Number,
         required: true
     },
-    isassigned: {
-        type: Boolean,
-        default: false
-    },
     assignee: {
-        username: {
-            type: String,
-            required: true
-        },
-        email: {
-            type: String,
-            required: true
-        }
+        type: bookedUserSchema
     }
 });
 
@@ -58,7 +58,10 @@ const busSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    seat: [seatSchema]
+    seats: {
+        type: [seatSchema],
+        default: []
+    }
 });
 
 module.exports = new mongoose.model("Bus", busSchema);
