@@ -54,7 +54,9 @@ userSchema.methods.isValidPassword = async function (passwd) {
 };
 
 userSchema.methods.cancelTicket = async function (busId, seatId) {
+    console.log("From cancelTicker", busId, seatId);
     try {
+        
         var ticketIndex = this.bookedTickets.findIndex(ticket => ticket.busId === busId && ticket.seatId === seatId);
         if (ticketIndex == -1) {
             return { success: false, message: "Ticket not found" };

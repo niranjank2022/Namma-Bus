@@ -84,16 +84,14 @@ router.patch("/reset-bus", async (req, res) => {
             });
         }
 
-
         for (const seat of bus.seats) {
             if (!seat.assignee)
                 continue;
 
-            
             const user = await User.find( {email: seat.assignee.email} );
-            console.log(user.bookedTickets);
             if (user) {
-                const status = await user.cancelTicket(bus._id.toString(), seat._id.toString());
+                console.log(user);
+                const status = user.cancelTicket(bus._id.toString(), seat._id.toString());
                 console.log(status);
             }
             seat.assignee = null;
