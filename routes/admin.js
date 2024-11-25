@@ -1,46 +1,8 @@
-const express = require('express');
-const router = express.Router();
+const express = require("express");
+const jwt = require("jsonwebtoken");
 const User = require("./../models/users");
 const Bus = require("./../models/buses");
-const jwt = require("jsonwebtoken");
-const JWT_SECRET_KEY = "ANYTHING_BUT_ORDINARY";
-
-router.post("/login", async (req, res) => {
-    try {
-        const { email, username, password } = req.body;
-        var user = null;
-
-        // Checking if user exists
-        if (username) {
-            user = await User.findOne({ username, isAdmin: true });
-        }
-        else {
-            user = await User.findOne({ email, isAdmin: true });
-        }
-
-        if (!user) {
-            return res.status(400).json({
-                message: "Error: User do not exist"
-            });
-        }
-
-        if (!(await user.isValidPassword(password))) {
-            return res.status(400).json({
-                message: "Incorrect password"
-            });
-        }
-
-        // Create a JWT token and return with the response
-		const token = jwt.sign({ userId: user._id }, JWT_SECRET_KEY, { expiresIn: '1h' });
-		res.status(201).json({message: "Sign in successfull", token});
-    }
-    catch(error) {
-        res.status(500).json({
-            message: "Error occurred",
-            error
-        });
-    }
-});
+const router = express.Router();
 
 router.get("/", async (req, res) => {
     try {

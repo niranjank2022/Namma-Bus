@@ -1,6 +1,7 @@
 // Importing required libraries
 const express = require("express");
 const mongoose = require("mongoose");
+const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
 const userRoutes = require("./routes/user");
 const dotenv = require("dotenv");
@@ -26,6 +27,7 @@ mongoose.connect(MONGODB_URI)
 app.use(express.json());
 
 // Adding the routes to the app
+app.use(authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
 
