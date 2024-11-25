@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password'))
         return next();
-    
+
     this.password = await bcrypt.hash(this.password, 10);
     next();
 });
@@ -54,9 +54,8 @@ userSchema.methods.isValidPassword = async function (passwd) {
 };
 
 userSchema.methods.cancelTicket = async function (busId, seatId) {
-    console.log("From cancelTicker", busId, seatId);
     try {
-        
+
         var ticketIndex = this.bookedTickets.findIndex(ticket => ticket.busId === busId && ticket.seatId === seatId);
         if (ticketIndex == -1) {
             return { success: false, message: "Ticket not found" };
@@ -66,7 +65,7 @@ userSchema.methods.cancelTicket = async function (busId, seatId) {
         await this.save();
         return { success: true, message: "Successfully deleted" };
     }
-    catch(error) {
+    catch (error) {
         return { success: false, message: "Error has occurred", error }
     }
 }

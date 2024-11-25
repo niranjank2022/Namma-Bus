@@ -1,48 +1,9 @@
-const express = require('express');
-const router = express.Router();
+const express = require("express");
 const User = require("./../models/users");
 const Bus = require("./../models/buses");
-const jwt = require("jsonwebtoken");
-const JWT_SECRET_KEY = "ANYTHING_BUT_ORDINARY";
+const router = express.Router();
 
-router.post("/login", async (req, res) => {
-    try {
-        const { email, username, password } = req.body;
-        var user = null;
-
-        // Checking if user exists
-        if (username) {
-            user = await User.findOne({ username, isAdmin: true });
-        }
-        else {
-            user = await User.findOne({ email, isAdmin: true });
-        }
-
-        if (!user) {
-            return res.status(400).json({
-                message: "Error: User do not exist"
-            });
-        }
-
-        if (!(await user.isValidPassword(password))) {
-            return res.status(400).json({
-                message: "Incorrect password"
-            });
-        }
-
-        // Create a JWT token and return with the response
-		const token = jwt.sign({ userId: user._id }, JWT_SECRET_KEY, { expiresIn: '1h' });
-		res.status(201).json({message: "Sign in successfull", token});
-    }
-    catch(error) {
-        res.status(500).json({
-            message: "Error occurred",
-            error
-        });
-    }
-});
-
-router.get("/", async (req, res) => {
+router.get("/home", async (req, res) => {
     try {
         const buses = await Bus.find({});
         if (!buses || !buses.length) {
@@ -50,7 +11,7 @@ router.get("/", async (req, res) => {
                 message: "No bus records found."
             });
         }
-        // console.log(buses);
+
         return res.json(buses);
     }
     catch (error) {
@@ -63,7 +24,14 @@ router.get("/", async (req, res) => {
 
 router.post("/add-bus", async (req, res) => {
     try {
-        const bus = await Bus.create(req.body);
+        const { busNo, busName } = req.body;
+        var bus = await Bus.findOne({ busNo, busName });
+
+        if (bus) {
+            return res.status(400).json({ message: "Record already found." });
+        }
+
+        bus = await Bus.create(req.body);
         res.json(bus);
     }
     catch (error) {
@@ -79,7 +47,7 @@ router.patch("/reset-bus", async (req, res) => {
         const { busNo, busName } = req.body;
         const bus = await Bus.findOne({ busNo, busName });
         if (!bus) {
-            res.status(404).json({
+            return res.status(404).json({
                 message: "Bus not found"
             });
         }
@@ -88,11 +56,14 @@ router.patch("/reset-bus", async (req, res) => {
             if (!seat.assignee)
                 continue;
 
-            const user = await User.find( {email: seat.assignee.email} );
-            if (user) {
-                console.log(user);
-                const status = user.cancelTicket(bus._id.toString(), seat._id.toString());
-                console.log(status);
+            const user = await User.findOne({ email: seat.assignee.email });
+            if (!user) {
+                return res.status(404).json("User not found");
+            }
+
+            const status = await user.cancelTicket(bus._id.toString(), seat._id.toString());
+            if (!status.success) {
+                return res.status(400).json("Reset failed");
             }
             seat.assignee = null;
         }
