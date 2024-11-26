@@ -1,29 +1,39 @@
+// Importing required libraries
 const express = require("express");
 const mongoose = require("mongoose");
-const User = require("./models/users");
+const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
 const userRoutes = require("./routes/user");
+const dotenv = require("dotenv");
+const authorizeJWT = require("./middlewares/authorizer");
 
+// Import .env variables
+dotenv.config({path: "./.env"});
+const PORT = process.env.PORT;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+// Creating the app instance
 const app = express();
-app.listen(3000, () => {
-    console.log("Server is running on port 3000.");
-});
 
-
-app.use(express.json());
-
-
-mongoose.connect("mongodb+srv://niranjank:vlYB4PtiA6Z70KjM@cluster0.lsvtk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+// Connecting to the database
+mongoose.connect(MONGODB_URI)
 .then(() => {
     console.log("Connected to Database.");
 })
 .catch(() => {
-    console.log("Error connecting database.");
+    console.log("Error connecting to database.");
 });
 
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-});
+// Adding the middlewares to the app
+app.use(express.json());
 
-app.use("/admin", adminRoutes);
-app.use("/user", userRoutes);
+// Adding the routes to the app
+app.use(authRoutes);
+app.use("/admin", authorizeJWT, adminRoutes);
+app.use("/user", authorizeJWT, userRoutes);
+
+
+// App is listening for requests from clients in specified PORT
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}.`);
+});

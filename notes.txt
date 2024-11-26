@@ -1,4 +1,0 @@
-# Mongodb credentials - database user
-
-niranjank
-vlYB4PtiA6Z70KjM

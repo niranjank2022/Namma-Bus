@@ -1,71 +1,10 @@
-const express = require('express');
-const router = express.Router();
+const express = require("express");
+const jwt = require("jsonwebtoken");
 const User = require("./../models/users");
 const Bus = require("./../models/buses");
-const jwt = require("jsonwebtoken");
-const mongoose = require('mongoose');
-const JWT_SECRET_KEY = "MYKEYTOLOGGINGIN"
-const { ObjectId } = mongoose.Types;
+const router = express.Router();
 
-router.post("/register", async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
-
-        // Checking if user exists
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({
-                message: "Error: User email already exists"
-            });
-        }
-
-        const user = await User.create(req.body);
-        return res.status(200).json(user);
-    }
-    catch(error) {
-        res.status(500).json({
-            message: error.message
-        })
-    }
-});
-
-router.post("/login", async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
-        var user = null;
-
-        // Checking if user exists
-        if (username) {
-            user = await User.findOne({ username });
-        }
-        else { 
-            user = await User.findOne({ email });
-        }
-
-        if (!user) {
-            return res.status(400).json({
-                message: "Error: User do not exist"
-            });
-        }
-
-        if (!(await user.isValidPassword(password))) {
-            return res.status(400).json({
-                message: "Incorrect password"
-            });
-        }
-
-        // Create a JWT token and return with the response
-		const token = jwt.sign({ userId: user._id }, JWT_SECRET_KEY, { expiresIn: '1h' });
-		res.status(200).json({message: "Sign in successfull", token});
-    }
-    catch(error) {
-        res.status(500).json({
-            message: error.message
-        })
-    }
-});
-
-router.get("/", async (req, res) => {
+router.get("/home", async (req, res) => {
     try {
         const buses = await Bus.find({});
         if (!buses || !buses.length) {
@@ -73,7 +12,7 @@ router.get("/", async (req, res) => {
                 message: "No bus records found."
             });
         }
-        // console.log(buses);
+
         return res.json(buses);
     }
     catch (error) {
@@ -85,7 +24,7 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/book-ticket/:busId", async (req, res) => {
-    
+
     try {
         const busId = req.params.busId;
         const { seatId, username, email } = req.body;
@@ -103,8 +42,8 @@ router.post("/book-ticket/:busId", async (req, res) => {
             });
         }
 
-        
-        const seat = bus.seats.find( seat => seat.id === seatId );
+
+        const seat = bus.seats.find(seat => seat.id === seatId);
         if (!seat) {
             return res.status(400).json({
                 message: "Seat doesn't exist"
@@ -115,14 +54,14 @@ router.post("/book-ticket/:busId", async (req, res) => {
                 message: "Ticket already booked"
             });
         }
-        
+
         seat.assignee = { username, email };
         user.bookedTickets.push({ busId, seatId: seat._id.toString() });
 
         await bus.save();
         await user.save();
 
-        res.json({bus, user, message: "Successfully ticket booked."});
+        res.json({ bus, user, message: "Successfully ticket booked." });
 
     } catch (error) {
         res.status(500).json({
@@ -144,8 +83,12 @@ router.get("/booked", async (req, res) => {
 
         var responseData = [];
         for (const ticket of user.bookedTickets) {
-            const bus = await Bus.findOne({_id: ticket.busId});
+            const bus = await Bus.findOne({ _id: ticket.busId });
             responseData.push({ ticketData: ticket, busData: bus });
+        }
+
+        if (!responseData.length) {
+            return res.status(204).json({ message: "No records found" });
         }
 
         res.json({ tickets: responseData });
@@ -174,7 +117,7 @@ router.patch("/booked/cancel/", async (req, res) => {
             });
         }
 
-        
+
         const userIndex = user.bookedTickets.findIndex(ticket => ticket.busId === busId && ticket.seatId === seatId);
         if (userIndex === -1) {
             return res.status(404).json({
@@ -182,7 +125,7 @@ router.patch("/booked/cancel/", async (req, res) => {
             });
         }
 
-        
+
         const busSeat = bus.seats.find(seat => seat.assignee && seat.assignee.email === email);
         if (!busSeat) {
             return res.status(404).json({
