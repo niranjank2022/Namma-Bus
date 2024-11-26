@@ -5,6 +5,7 @@ const authRoutes = require("./routes/auth");
 const adminRoutes = require("./routes/admin");
 const userRoutes = require("./routes/user");
 const dotenv = require("dotenv");
+const authorizeJWT = require("./middlewares/authorizer");
 
 // Import .env variables
 dotenv.config({path: "./.env"});
@@ -20,7 +21,7 @@ mongoose.connect(MONGODB_URI)
     console.log("Connected to Database.");
 })
 .catch(() => {
-    console.log("Error connecting database.");
+    console.log("Error connecting to database.");
 });
 
 // Adding the middlewares to the app
@@ -28,8 +29,8 @@ app.use(express.json());
 
 // Adding the routes to the app
 app.use(authRoutes);
-app.use("/admin", adminRoutes);
-app.use("/user", userRoutes);
+app.use("/admin", authorizeJWT, adminRoutes);
+app.use("/user", authorizeJWT, userRoutes);
 
 
 // App is listening for requests from clients in specified PORT
