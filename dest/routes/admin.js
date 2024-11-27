@@ -1,17 +1,24 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const express = require("express");
-const User = require("./../models/users");
-const Bus = require("./../models/buses");
+const User = require("../models/users");
+const Bus = require("../models/buses");
 const router = express.Router();
-
-router.get("/home", async (req, res) => {
+router.get("/home", (req, res) => __awaiter(this, void 0, void 0, function* () {
     try {
-        const buses = await Bus.find({});
+        const buses = yield Bus.find({});
         if (!buses || !buses.length) {
             return res.status(204).json({
                 message: "No bus records found."
             });
         }
-
         return res.json(buses);
     }
     catch (error) {
@@ -20,18 +27,15 @@ router.get("/home", async (req, res) => {
             error
         });
     }
-});
-
-router.post("/add-bus", async (req, res) => {
+}));
+router.post("/add-bus", (req, res) => __awaiter(this, void 0, void 0, function* () {
     try {
         const { busNo, busName } = req.body;
-        var bus = await Bus.findOne({ busNo, busName });
-
+        var bus = yield Bus.findOne({ busNo, busName });
         if (bus) {
             return res.status(400).json({ message: "Record already found." });
         }
-
-        bus = await Bus.create(req.body);
+        bus = yield Bus.create(req.body);
         res.json(bus);
     }
     catch (error) {
@@ -40,35 +44,30 @@ router.post("/add-bus", async (req, res) => {
             error
         });
     }
-});
-
-router.patch("/reset-bus", async (req, res) => {
+}));
+router.patch("/reset-bus", (req, res) => __awaiter(this, void 0, void 0, function* () {
     try {
         const { busNo, busName } = req.body;
-        const bus = await Bus.findOne({ busNo, busName });
+        const bus = yield Bus.findOne({ busNo, busName });
         if (!bus) {
             return res.status(404).json({
                 message: "Bus not found"
             });
         }
-
         for (const seat of bus.seats) {
             if (!seat.assignee)
                 continue;
-
-            const user = await User.findOne({ email: seat.assignee.email });
+            const user = yield User.findOne({ email: seat.assignee.email });
             if (!user) {
                 return res.status(404).json("User not found");
             }
-
-            const status = await user.cancelTicket(bus._id.toString(), seat._id.toString());
+            const status = yield user.cancelTicket(bus._id.toString(), seat._id.toString());
             if (!status.success) {
                 return res.status(400).json("Reset failed");
             }
             seat.assignee = null;
         }
-
-        await bus.save();
+        yield bus.save();
         res.json(bus);
     }
     catch (error) {
@@ -77,6 +76,5 @@ router.patch("/reset-bus", async (req, res) => {
             error
         });
     }
-});
-
+}));
 module.exports = router;
