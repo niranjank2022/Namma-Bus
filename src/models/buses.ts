@@ -1,6 +1,31 @@
-const mongoose = require("mongoose");
+import mongoose, { Schema, Model } from "mongoose";
 
-const bookedUserSchema = new mongoose.Schema({
+export interface IBookedUser {
+    username: string;
+    email: string;
+}
+
+export interface ISeat {
+    _id: mongoose.Types.ObjectId;
+    tag: string;
+    class: string;
+    price: number;
+    assignee?: IBookedUser;
+}
+
+export interface IBus {
+    _id: mongoose.Types.ObjectId;
+    busNo: string;
+    busName: string;
+    departureTime: string;
+    departureLocation: string;
+    arrivalTime: string;
+    arrivalLocation: string;
+    travelDuration: number;
+    seats: ISeat[];
+}
+
+const bookedUserSchema = new Schema<IBookedUser>({
     username: {
         type: String,
         required: true
@@ -11,8 +36,8 @@ const bookedUserSchema = new mongoose.Schema({
     }
 });
 
-const seatSchema = new mongoose.Schema({
-    id: {
+const seatSchema = new Schema<ISeat>({
+    tag: {
         type: String,
         required: true
     },
@@ -29,7 +54,7 @@ const seatSchema = new mongoose.Schema({
     }
 });
 
-const busSchema = new mongoose.Schema({
+const busSchema = new Schema<IBus>({
     busNo: {
         type: String,
         required: true
@@ -64,4 +89,5 @@ const busSchema = new mongoose.Schema({
     }
 });
 
-module.exports = new mongoose.model("Bus", busSchema);
+
+export const Bus: Model<IBus> = mongoose.model<IBus>("Bus", busSchema);
