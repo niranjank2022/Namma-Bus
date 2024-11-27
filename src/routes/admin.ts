@@ -1,18 +1,20 @@
-const express = require("express");
-const User = require("../models/users");
-const Bus = require("../models/buses");
+import express, { Request, Response } from "express";
+import { User } from "../models/users";
+import { Bus } from "../models/buses";
+
 const router = express.Router();
 
-router.get("/home", async (req, res) => {
+router.get("/home", async (req: Request, res: Response) => {
     try {
         const buses = await Bus.find({});
         if (!buses || !buses.length) {
-            return res.status(204).json({
+            res.status(204).json({
                 message: "No bus records found."
             });
+            return;
         }
 
-        return res.json(buses);
+        res.json(buses);
     }
     catch (error) {
         res.status(500).json({
@@ -22,13 +24,14 @@ router.get("/home", async (req, res) => {
     }
 });
 
-router.post("/add-bus", async (req, res) => {
+router.post("/add-bus", async (req: Request, res: Response) => {
     try {
         const { busNo, busName } = req.body;
         var bus = await Bus.findOne({ busNo, busName });
 
         if (bus) {
-            return res.status(400).json({ message: "Record already found." });
+            res.status(400).json({ message: "Record already found." });
+            return;
         }
 
         bus = await Bus.create(req.body);
@@ -47,9 +50,10 @@ router.patch("/reset-bus", async (req, res) => {
         const { busNo, busName } = req.body;
         const bus = await Bus.findOne({ busNo, busName });
         if (!bus) {
-            return res.status(404).json({
+            res.status(404).json({
                 message: "Bus not found"
             });
+            return;
         }
 
         for (const seat of bus.seats) {
@@ -58,12 +62,14 @@ router.patch("/reset-bus", async (req, res) => {
 
             const user = await User.findOne({ email: seat.assignee.email });
             if (!user) {
-                return res.status(404).json("User not found");
+                res.status(404).json("User not found");
+                return;
             }
 
             const status = await user.cancelTicket(bus._id.toString(), seat._id.toString());
             if (!status.success) {
-                return res.status(400).json("Reset failed");
+                res.status(400).json("Reset failed");
+                return;
             }
             seat.assignee = null;
         }
@@ -79,4 +85,4 @@ router.patch("/reset-bus", async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

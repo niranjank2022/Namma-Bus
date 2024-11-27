@@ -1,19 +1,21 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const User = require("../models/users");
-const Bus = require("../models/buses");
+import express, { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { User } from "../models/users";
+import { Bus } from "../models/buses";
+
 const router = express.Router();
 
-router.get("/home", async (req, res) => {
+router.get("/home", async (req: Request, res: Response) => {
     try {
         const buses = await Bus.find({});
         if (!buses || !buses.length) {
-            return res.status(204).json({
+            res.status(204).json({
                 message: "No bus records found."
             });
+            return;
         }
 
-        return res.json(buses);
+        res.json(buses);
     }
     catch (error) {
         res.status(500).json({
@@ -23,7 +25,7 @@ router.get("/home", async (req, res) => {
     }
 });
 
-router.post("/book-ticket/:busId", async (req, res) => {
+router.post("/book-ticket/:busId", async (req: Request, res: Response) => {
 
     try {
         const busId = req.params.busId;
@@ -32,27 +34,30 @@ router.post("/book-ticket/:busId", async (req, res) => {
         const bus = await Bus.findOne({ _id: busId });
         const user = await User.findOne({ email, username });
         if (!bus) {
-            return res.status(400).json({
+            res.status(400).json({
                 message: "Bus not found"
             });
+            return;
         }
         if (!user) {
-            return res.status(400).json({
+            res.status(400).json({
                 message: "User not found"
             });
+            return;
         }
 
-
-        const seat = bus.seats.find(seat => seat.id === seatId);
+        const seat = bus.seats.find(seat => seat.tag === seatId);
         if (!seat) {
-            return res.status(400).json({
+            res.status(400).json({
                 message: "Seat doesn't exist"
             });
+            return;
         }
         if (seat.assignee) {
-            return res.status(400).json({
+            res.status(400).json({
                 message: "Ticket already booked"
             });
+            return;
         }
 
         seat.assignee = { username, email };
@@ -71,14 +76,15 @@ router.post("/book-ticket/:busId", async (req, res) => {
     }
 });
 
-router.get("/booked", async (req, res) => {
+router.get("/booked", async (req: Request, res: Response) => {
     try {
         const { email, username } = req.body;
         const user = await User.findOne({ email, username });
         if (!user) {
-            return res.status(404).json({
+            res.status(404).json({
                 message: "User not found"
             });
+            return;
         }
 
         var responseData = [];
@@ -88,7 +94,8 @@ router.get("/booked", async (req, res) => {
         }
 
         if (!responseData.length) {
-            return res.status(204).json({ message: "No records found" });
+            res.status(204).json({ message: "No records found" });
+            return;
         }
 
         res.json({ tickets: responseData });
@@ -101,36 +108,38 @@ router.get("/booked", async (req, res) => {
     }
 })
 
-router.patch("/booked/cancel/", async (req, res) => {
+router.patch("/booked/cancel/", async (req: Request, res: Response) => {
     try {
         const { busId, seatId, email, username } = req.body;
         const user = await User.findOne({ email, username });
         const bus = await Bus.findOne({ _id: busId });
         if (!bus) {
-            return res.status(404).json({
+            res.status(404).json({
                 message: "Bus not found"
             });
+            return;
         }
         if (!user) {
-            return res.status(404).json({
+            res.status(404).json({
                 message: "User not found"
             });
+            return;
         }
-
 
         const userIndex = user.bookedTickets.findIndex(ticket => ticket.busId === busId && ticket.seatId === seatId);
         if (userIndex === -1) {
-            return res.status(404).json({
+            res.status(404).json({
                 message: "ticket not booked"
             });
+            return;
         }
-
 
         const busSeat = bus.seats.find(seat => seat.assignee && seat.assignee.email === email);
         if (!busSeat) {
-            return res.status(404).json({
+            res.status(404).json({
                 message: "bus and seat doesn't exist"
             });
+            return;
         }
 
         user.bookedTickets.splice(userIndex, 1);
@@ -148,4 +157,4 @@ router.patch("/booked/cancel/", async (req, res) => {
     }
 })
 
-module.exports = router;
+export default router;

@@ -1,9 +1,10 @@
-const express = require("express");
-const jwt = require("jsonwebtoken");
-const User = require("../models/users");
+import express, { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { User } from "../models/users";
+
 const router = express.Router();
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req: Request, res: Response) => {
     try {
         const { email, username, password, isAdmin } = req.body;
         var user = null;
@@ -12,22 +13,24 @@ router.post("/login", async (req, res) => {
         user = await User.findOne({ username, email, isAdmin });
 
         if (!user) {
-            return res.status(404).json({
+            res.status(404).json({
                 message: "Error: User do not exist"
             });
+            return;
         }
 
         if (!(await user.isValidPassword(password))) {
-            return res.status(400).json({
+            res.status(400).json({
                 message: "Incorrect password"
             });
+            return;
         }
 
         // Create a JWT token and return with the response
-		const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
-		res.status(201).json({message: "Sign in successfull", token});
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+        res.status(201).json({ message: "Sign in successfull", token });
     }
-    catch(error) {
+    catch (error) {
         res.status(500).json({
             message: "Error occurred",
             error
@@ -42,19 +45,20 @@ router.post("/register", async (req, res) => {
         // Checking if user exists
         const userExists = await User.findOne({ email });
         if (userExists) {
-            return res.status(400).json({
+            res.status(400).json({
                 message: "Error: User email already exists"
             });
+            return;
         }
 
         const user = await User.create(req.body);
-        return res.status(200).json(user);
+        res.status(200).json(user);
     }
-    catch(error) {
+    catch (error) {
         res.status(500).json({
             message: error.message
         })
     }
 });
 
-module.exports = router;
+export default router;
