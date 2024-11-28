@@ -2,6 +2,7 @@ import mongoose, { Schema, Model } from "mongoose";
 import bcrypt from "bcrypt";
 import { NextFunction } from "express";
 
+
 export interface IBookedTicket {
     busId: string;
     seatId: string;

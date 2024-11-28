@@ -1,5 +1,6 @@
 import mongoose, { Schema, Model } from "mongoose";
 
+
 export interface IBookedUser {
     username: string;
     email: string;
@@ -88,6 +89,5 @@ const busSchema = new Schema<IBus>({
         default: []
     }
 });
-
 
 export const Bus: Model<IBus> = mongoose.model<IBus>("Bus", busSchema);

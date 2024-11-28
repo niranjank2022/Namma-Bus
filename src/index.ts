@@ -7,12 +7,13 @@ import adminRoutes from "./routes/admin";
 import userRoutes from "./routes/user";
 import { authorizeJWT } from "./middlewares/authorizer";
 
+
 // Import .env variables
 dotenv.config({ path: "./.env" });
 const PORT = process.env.PORT;
 const MONGODB_URI: string = process.env.MONGODB_URI;
 
-// Creating the app instance
+// Initializing the app instance
 const app: Application = express();
 
 // Connecting to the database

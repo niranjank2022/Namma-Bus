@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
+
 interface CustomRequest extends Request {
     user?: string | JwtPayload;
 }
 
-export const authorizeJWT = (req: CustomRequest, res: Response, next: NextFunction): void => {
+export function authorizeJWT(req: CustomRequest, res: Response, next: NextFunction) {
 
     const authHeader = req.header("Authorization");
     if (!authHeader) {
