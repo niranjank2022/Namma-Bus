@@ -2,15 +2,15 @@
 Welcome to Namma Bus! The perfect point to get started on your journey to any part of the world!!
 
 
-
-## About the Repo
-This repository is the backend system for the application Namma-Bus using RESTful APIs. The backend is built using (but not by) MEN (MongoDB, Express JS and Node JS). Mr. R (React) may showcase his entry in the sequel of this project to make this a MERN project. Apart from these three, for you to work on this project fully, you should also have installed MongoDB Shell/MongoDB Compass, an API testign tool - Postman or Insomnia. 
-
 ## Table of Contents
+1. [About the Repo](#about-the-repo)
 1. [Installation](#installation)
 3. [Running the application](#running-the-application)
 4. [Project Structure](#project-structure)
 5. [Features](#features)
+
+## About the Repo
+This repository is the backend system for the application Namma-Bus using RESTful APIs. The backend is built using (but not by) MEN (MongoDB, Express JS and Node JS). Mr. R (React) may showcase his entry in the sequel of this project to make this a MERN project. Apart from these three, for you to work on this project fully, you should also have installed MongoDB Shell/MongoDB Compass, an API testign tool - Postman or Insomnia. 
 
 ## Installation
 First of all fork the project. Use the button shown above.
@@ -31,29 +31,38 @@ JWT_SECRET_KEY="<Any string you want to use for signing your credentials and cre
 Note that, **npm** and **node** must be installed in your system proper functioning of application.
 ```bash
 npm install
-npm start
+npm run dev
 ```
 
 ## Project Structure
 ```
 /
-|--- models     # Contains the schema of the MongoDB collections
+|--- src
 |    |
-|    |--- buses.js
-|    |--- users.js
-|    
-|--- routes     # Contains the route handler functions
+|    |--- middlewares
+|    |    |
+|    |    |--- authorizer.ts
 |    |
-|    |--- admin.js
-|    |--- auth.js
-|    |--- user.js
+|    |--- models     # Contains the schema of the MongoDB collections
+|    |    |
+|    |    |--- buses.ts
+|    |    |--- users.ts
+|    |    
+|    |--- routes     # Contains the route handler functions
+|    |    |
+|    |    |--- admin.ts
+|    |    |--- auth.ts
+|    |    |--- user.ts
+|    |
+|    |--- index.ts               # The application program
 |
 |--- .env
 |--- .gitignore
-|--- index.js               # The application program
+|--- LICENSE
 |--- package-lock.json
 |--- package.json           # npm packages required 
 |--- README.md
+|--- tsconfig.json
 ```
 
 ## Features
