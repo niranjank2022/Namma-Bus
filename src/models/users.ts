@@ -1,6 +1,7 @@
 import mongoose, { Schema, Model } from "mongoose";
 import bcrypt from "bcrypt";
 import { NextFunction } from "express";
+import { MESSAGES } from "../../lib/constants";
 
 
 export interface IBookedTicket {
@@ -63,8 +64,8 @@ const userSchema = new Schema<IUser>({
 });
 
 // Hashing the password before saving them into the database - Security
-userSchema.pre('save', async function (next: NextFunction) {
-    if (!this.isModified('password'))
+userSchema.pre("save", async function (next: NextFunction) {
+    if (!this.isModified("password"))
         return next();
 
     this.password = await bcrypt.hash(this.password, 10);
@@ -81,15 +82,15 @@ userSchema.methods.cancelTicket = async function (busId: string, seatId: string)
 
         var ticketIndex: number = this.bookedTickets.findIndex((ticket: IBookedTicket) => ticket.busId === busId && ticket.seatId === seatId);
         if (ticketIndex == -1) {
-            return { success: false, message: "Ticket not found" };
+            return { success: false, message: MESSAGES.RECORD_NOT_FOUND };
         }
 
         this.bookedTickets.splice(ticketIndex, 1);
         await this.save();
-        return { success: true, message: "Successfully deleted" };
+        return { success: true, message: MESSAGES.DELETE_SUCCESS };
     }
     catch (error) {
-        return { success: false, message: "Error has occurred", error }
+        return { success: false, message: MESSAGES.ERROR_MESSAGE, error }
     }
 }
 

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { MESSAGES } from "../../lib/constants";
 
 
 interface CustomRequest extends Request {
@@ -10,7 +11,7 @@ export function authorizeJWT(req: CustomRequest, res: Response, next: NextFuncti
 
     const authHeader = req.header("Authorization");
     if (!authHeader) {
-        res.status(401).json({ message: "Authorization field missing in the header" });
+        res.status(401).json({ message: MESSAGES.AUTH_HEADER_MISSING });
         return;
     }
 
@@ -22,7 +23,7 @@ export function authorizeJWT(req: CustomRequest, res: Response, next: NextFuncti
     }
     catch (error) {
         res.status(403).json({
-            message: "Invalid or expired token",
+            message: MESSAGES.TOKEN_ERROR_MESSAGE,
             error
         });
     }

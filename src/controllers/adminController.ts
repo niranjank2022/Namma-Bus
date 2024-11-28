@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "../models/users";
 import { Bus } from "../models/buses";
+import { MESSAGES } from "../../lib/constants";
 
 
 export async function getBuses(req: Request, res: Response) {
@@ -8,7 +9,7 @@ export async function getBuses(req: Request, res: Response) {
         const buses = await Bus.find({});
         if (!buses || !buses.length) {
             res.status(204).json({
-                message: "No bus records found."
+                message: MESSAGES.RECORD_NOT_FOUND
             });
             return;
         }
@@ -17,7 +18,7 @@ export async function getBuses(req: Request, res: Response) {
     }
     catch (error) {
         res.status(500).json({
-            message: "Error occurred",
+            message: MESSAGES.ERROR_MESSAGE,
             error
         });
     }
@@ -29,7 +30,7 @@ export async function addBus(req: Request, res: Response) {
         var bus = await Bus.findOne({ busNo, busName });
 
         if (bus) {
-            res.status(400).json({ message: "Record already found." });
+            res.status(400).json({ message: MESSAGES.RECORD_EXISTS });
             return;
         }
 
@@ -38,7 +39,7 @@ export async function addBus(req: Request, res: Response) {
     }
     catch (error) {
         res.status(500).json({
-            message: "Error occurred",
+            message: MESSAGES.ERROR_MESSAGE,
             error
         });
     }
@@ -49,26 +50,28 @@ export async function resetBus(req: Request, res: Response) {
         const bus = await Bus.findById(req.params.busId);
         if (!bus) {
             res.status(404).json({
-                message: "Bus not found"
+                message: MESSAGES.RECORD_NOT_FOUND
             });
             return;
         }
 
         for (const seat of bus.seats) {
+
             if (!seat.assignee)
                 continue;
 
             const user = await User.findOne({ email: seat.assignee.email });
             if (!user) {
-                res.status(404).json("User not found");
+                res.status(404).json(MESSAGES.USER_NOT_FOUND);
                 return;
             }
 
             const status = await user.cancelTicket(bus._id.toString(), seat._id.toString());
             if (!status.success) {
-                res.status(400).json("Reset failed");
+                res.status(400).json(MESSAGES.RESET_FAILURE);
                 return;
             }
+
             seat.assignee = null;
         }
 
@@ -77,7 +80,7 @@ export async function resetBus(req: Request, res: Response) {
     }
     catch (error) {
         res.status(500).json({
-            message: "Error occurred",
+            message: MESSAGES.ERROR_MESSAGE,
             error
         });
     }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "../models/users";
-import { Bus } from "../models/buses";
+import { Bus, ISeat } from "../models/buses";
+import { MESSAGES } from "../../lib/constants";
 
 
 export async function getBuses(req: Request, res: Response) {
@@ -8,7 +9,7 @@ export async function getBuses(req: Request, res: Response) {
         const buses = await Bus.find({});
         if (!buses || !buses.length) {
             res.status(204).json({
-                message: "No bus records found."
+                message: MESSAGES.RECORD_NOT_FOUND
             });
             return;
         }
@@ -17,7 +18,7 @@ export async function getBuses(req: Request, res: Response) {
     }
     catch (error) {
         res.status(500).json({
-            message: "Error occurred",
+            message: MESSAGES.ERROR_MESSAGE,
             error
         });
     }
@@ -27,33 +28,33 @@ export async function bookTicket(req: Request, res: Response) {
 
     try {
         const busId = req.params.busId;
-        const { seatId, username, email } = req.body;
+        const { seatTag, username, email } = req.body;
 
         const bus = await Bus.findOne({ _id: busId });
         const user = await User.findOne({ email, username });
         if (!bus) {
             res.status(400).json({
-                message: "Bus not found"
+                message: MESSAGES.RECORD_NOT_FOUND
             });
             return;
         }
         if (!user) {
             res.status(400).json({
-                message: "User not found"
+                message: MESSAGES.RECORD_NOT_FOUND
             });
             return;
         }
 
-        const seat = bus.seats.find(seat => seat.tag === seatId);
+        const seat = bus.seats.find((seat: ISeat) => seat.tag === seatTag);
         if (!seat) {
             res.status(400).json({
-                message: "Seat doesn't exist"
+                message: MESSAGES.RECORD_NOT_FOUND
             });
             return;
         }
         if (seat.assignee) {
             res.status(400).json({
-                message: "Ticket already booked"
+                message: MESSAGES.RECORD_EXISTS
             });
             return;
         }
@@ -64,11 +65,11 @@ export async function bookTicket(req: Request, res: Response) {
         await bus.save();
         await user.save();
 
-        res.json({ bus, user, message: "Successfully ticket booked." });
+        res.json({ bus, user, message: MESSAGES.BOOK_SUCCESS });
 
     } catch (error) {
         res.status(500).json({
-            message: "Error occurred",
+            message: MESSAGES.ERROR_MESSAGE,
             error
         });
     }
@@ -80,7 +81,7 @@ export async function getBookedBuses(req: Request, res: Response) {
         const user = await User.findOne({ email, username });
         if (!user) {
             res.status(404).json({
-                message: "User not found"
+                message: MESSAGES.USER_NOT_FOUND
             });
             return;
         }
@@ -92,7 +93,7 @@ export async function getBookedBuses(req: Request, res: Response) {
         }
 
         if (!responseData.length) {
-            res.status(204).json({ message: "No records found" });
+            res.status(204).json({ message: MESSAGES.RECORD_NOT_FOUND });
             return;
         }
 
@@ -100,7 +101,7 @@ export async function getBookedBuses(req: Request, res: Response) {
     }
     catch (error) {
         res.status(500).json({
-            message: "Error occurred",
+            message: MESSAGES.ERROR_MESSAGE,
             error
         });
     }
@@ -113,13 +114,13 @@ export async function cancelTicket(req: Request, res: Response) {
         const bus = await Bus.findOne({ _id: busId });
         if (!bus) {
             res.status(404).json({
-                message: "Bus not found"
+                message: MESSAGES.RECORD_NOT_FOUND
             });
             return;
         }
         if (!user) {
             res.status(404).json({
-                message: "User not found"
+                message: MESSAGES.USER_NOT_FOUND
             });
             return;
         }
@@ -127,7 +128,7 @@ export async function cancelTicket(req: Request, res: Response) {
         const userIndex = user.bookedTickets.findIndex(ticket => ticket.busId === busId && ticket.seatId === seatId);
         if (userIndex === -1) {
             res.status(404).json({
-                message: "ticket not booked"
+                message: MESSAGES.RECORD_NOT_FOUND
             });
             return;
         }
@@ -135,7 +136,7 @@ export async function cancelTicket(req: Request, res: Response) {
         const busSeat = bus.seats.find(seat => seat.assignee && seat.assignee.email === email);
         if (!busSeat) {
             res.status(404).json({
-                message: "bus and seat doesn't exist"
+                message: MESSAGES.RECORD_NOT_FOUND
             });
             return;
         }
@@ -149,7 +150,7 @@ export async function cancelTicket(req: Request, res: Response) {
     }
     catch (error) {
         res.status(500).json({
-            message: "Error occurred",
+            message: MESSAGES.ERROR_MESSAGE,
             error
         });
     }
