@@ -31,7 +31,7 @@ JWT_SECRET_KEY="<Any string you want to use for signing your credentials and cre
 Note that, **npm** and **node** must be installed in your system proper functioning of application.
 ```bash
 npm install
-npm start
+npm run dev
 ```
 
 ## Project Structure
