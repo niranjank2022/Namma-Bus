@@ -1,6 +1,6 @@
 node_modules/
 reviews/
-dest/
+dist/
 eslint.config.mjs
 notes.txt
 .env

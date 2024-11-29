@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node .\\dest\\src\\index.js",
+    "start": "node .\\dist\\src\\index.js",
     "tsc": "tsc",
     "postinstall": "npm run tsc",
     "dev": "ts-node-dev --respawn --pretty --transpile-only ./src/index.ts",

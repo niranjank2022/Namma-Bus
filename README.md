@@ -13,7 +13,7 @@ Welcome to Namma Bus! The perfect point to get started on your journey to any pa
 This repository is the backend system for the application Namma-Bus using RESTful APIs. The backend is built using (but not by) MEN (MongoDB, Express JS and Node JS). Mr. R (React) may showcase his entry in the sequel of this project to make this a MERN project. Apart from these three, for you to work on this project fully, you should also have installed MongoDB Shell/MongoDB Compass, an API testign tool - Postman or Insomnia. 
 
 ## Installation
-First of all fork the project. Use the button shown above.
+First of all fork the project (Use the button shown above.)
 ```bash
 git init
 git clone "https://github.com/niranjank2022/Namma-Bus.git"
@@ -31,12 +31,18 @@ JWT_SECRET_KEY="<Any string you want to use for signing your credentials and cre
 Note that, **npm** and **node** must be installed in your system proper functioning of application.
 ```bash
 npm install
-npm run dev
+npm run postinstall     # To compile the .ts files to .js files
+npm run dev             # To run the sc/index.ts
+npm start               # To run the compiled dist/index.js
 ```
 
 ## Project Structure
 ```
 /
+|--- lib
+|    |
+|    |--- constants.ts
+|
 |--- src
 |    |
 |    |--- middlewares
