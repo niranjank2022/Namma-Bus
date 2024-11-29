@@ -1,6 +1,10 @@
 import express from "express";
-import { bookTicket, cancelTicket, getBookedBuses, getBuses } from "../controllers/userController";
-
+import {
+  bookTicket,
+  cancelTicket,
+  getBookedBuses,
+  getBuses,
+} from "../controllers/userController";
 
 const router = express.Router();
 router.get("/buses", getBuses);
