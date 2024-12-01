@@ -1,6 +1,6 @@
-node_modules/
 reviews/
-dist/
-eslint.config.mjs
-notes.txt
-.env
+server/node_modules/
+server/dist/
+server/eslint.config.mjs
+server/.env
+ 
