@@ -3,27 +3,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
-interface FormFields {
-    email: string;
-    username: string;
-    password: string;
-    confirm_password?: string;
-}
-
-interface LoginBarProps {
-    logged: boolean;
-    setLogged: (value: boolean | ((prevVal: boolean) => boolean)) => void
-}
-
-interface UserResponse {
-    message: string;
-    token?: string;
-}
+import { LoginBarProps, FormFields, UserResponse } from "./interfaces";
+import UserLogin from "./userLogin";
+import AdminLogin from "./adminLogin";
 
 export default function loginbar(props: LoginBarProps) {
 
     const navigate = useNavigate();
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const [signupFields, setSignupFields] = useState<FormFields>({
         email: "",
@@ -38,6 +25,37 @@ export default function loginbar(props: LoginBarProps) {
         password: ""
     });
 
+    const [adminSigninFields, setAdminSigninFields] = useState<FormFields>({
+        email: "",
+        username: "",
+        password: ""
+    });
+
+    const handleAdminSigninChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setAdminSigninFields(prevState => { return { ...prevState, [event.target.name]: event.target.value } });
+    }
+
+    const handleAdminSigninSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const requestBody = { ...adminSigninFields, isAdmin };
+        const res = await fetch("http://localhost:3000/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (res.ok) {
+            props.setLogged(true)
+            alert("Login Successful!");
+            navigate("/admin/home");
+        }
+        else {
+            alert("Invalid login credentials");
+        }
+    }
+
     const handleSigninChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSigninFields(prevState => { return { ...prevState, [event.target.name]: event.target.value } });
     }
@@ -48,7 +66,7 @@ export default function loginbar(props: LoginBarProps) {
 
     const handleSigninSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const requestBody = { ...signinFields, isAdmin: false };
+        const requestBody = { ...signinFields, isAdmin };
         const res = await fetch("http://localhost:3000/login", {
             method: "POST",
             headers: {
@@ -74,7 +92,7 @@ export default function loginbar(props: LoginBarProps) {
             return;
         }
 
-        const requestBody = { ...signupFields, isAdmin: false };
+        const requestBody = { ...signupFields, isAdmin };
         const res = await fetch("http://localhost:3000/register", {
             method: "POST",
             headers: {
@@ -98,67 +116,32 @@ export default function loginbar(props: LoginBarProps) {
     return (
         <>
             <div className="container pt-5">
-                <div className="card-header">
-                    <ul className="nav nav-pills nav-justified" role="tablist">
-                        <li className="nav-item">
-                            <button className="nav-link btn active" role="tab" data-bs-toggle="tab" data-bs-target="#signin" type="button">
-                                Sign In
-                            </button>
-                        </li>
-                        <li className="nav-item">
-                            <button className="nav-link btn" role="tab" data-bs-toggle="tab" data-bs-target="#signup" type="button">
-                                Sign Up
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-                <div className="card-body">
-                    <div className="tab-content">
-                        <div className="tab-pane active show fade" id="signin" role="tabpanel">
-                            <form onSubmit={handleSigninSubmit}>
-                                <div>
-                                    <label className="form-label" htmlFor="signin-email">Email</label>
-                                    <input className="form-control" id="signin-email" type="email" name="email" onChange={handleSigninChange} value={signinFields["email"]} required />
-                                </div>
-                                <div>
-                                    <label className="form-label" htmlFor="signin-username">Username</label>
-                                    <input className="form-control" id="signin-username" type="text" name="username" onChange={handleSigninChange} value={signinFields["username"]} required />
-                                </div>
-                                <div>
-                                    <label className="form-label" htmlFor="signin-password">Password</label>
-                                    <input className="form-control" id="signin-password" type="password" name="password" onChange={handleSigninChange} value={signinFields["password"]} required />
-                                </div>
-                                <div>
-                                    <button className="btn btn-primary">Sign In</button>
-                                </div>
-                            </form>
-                        </div>
-                        <div className="tab-pane show fade" id="signup" role="tabpanel">
-                            <form onSubmit={handleSignupSubmit}>
-                                <div>
-                                    <label className="form-label" htmlFor="signup-email">Email</label>
-                                    <input className="form-control" id="signup-email" type="email" name="email" onChange={handleSignupChange} value={signupFields["email"]} required />
-                                </div>
-                                <div>
-                                    <label className="form-label" htmlFor="signup-username">Username</label>
-                                    <input className="form-control" id="signup-username" type="text" name="username" onChange={handleSignupChange} value={signupFields["username"]} required />
-                                </div>
-                                <div>
-                                    <label className="form-label" htmlFor="signup-password">Password</label>
-                                    <input className="form-control" id="signup-password" type="password" name="password" onChange={handleSignupChange} value={signupFields["password"]} required />
-                                </div>
-                                <div>
-                                    <label className="form-label" htmlFor="signup-cpassword">Confirm Password</label>
-                                    <input className="form-control" id="signup-cpassword" type="password" name="confirm_password" onChange={handleSignupChange} value={signupFields["confirm_password"]} required />
-                                </div>
-                                <div>
-                                    <button className="btn btn-primary">Sign Up</button>
-                                </div>
-                            </form>
-                        </div>
+
+
+                <div className="container-fluid">
+                    {isAdmin ? (<AdminLogin
+                        handleAdminSigninSubmit={handleAdminSigninSubmit}
+                        handleAdminSigninChange={handleAdminSigninChange}
+                        adminSigninFields={adminSigninFields}
+                    />) :
+                        (<UserLogin
+                            handleSigninSubmit={handleSigninSubmit}
+                            handleSigninChange={handleSigninChange}
+                            handleSignupChange={handleSignupChange}
+                            handleSignupSubmit={handleSignupSubmit}
+                            signinFields={signinFields}
+                            signupFields={signupFields}
+                        />)}
+                    <div>
+                        <span>
+                            <a href="#" onClick={() => setIsAdmin(!isAdmin)}>
+                                Continue as {!isAdmin ? "Admin" : "User"}?
+                            </a>
+                        </span>
                     </div>
                 </div>
-            </div >
+
+            </div>
         </>
     );
 }
