@@ -27,7 +27,11 @@ export async function login(req: Request, res: Response) {
     const token = jwt.sign({ userId: user._id }, VARIABLES.JWT_SECRET_KEY, {
       expiresIn: LITERALS.TOKEN_EXPIRATION_DURATION,
     });
-    res.status(201).json({ message: MESSAGES.SIGNIN_SUCCESS, token });
+    res.status(201).json({
+      message: MESSAGES.SIGNIN_SUCCESS,
+      user,
+      token
+    });
   } catch (error) {
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
@@ -48,9 +52,18 @@ export async function register(req: Request, res: Response) {
       });
       return;
     }
-
     const user = await User.create({ username, email, password });
-    res.status(200).json(user);
+
+    // Create a JWT token and return with the response
+    const token = jwt.sign({ userId: user._id }, VARIABLES.JWT_SECRET_KEY, {
+      expiresIn: LITERALS.TOKEN_EXPIRATION_DURATION,
+    });
+    res.status(200).json({
+      message: MESSAGES.SIGNUP_SUCCESS,
+      user,
+      token
+    });
+
   } catch (error) {
     res.status(500).json({
       message: error.message,

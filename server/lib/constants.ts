@@ -37,7 +37,7 @@ export const MESSAGES = Object.freeze({
     // Authentication messages
     PASSWORD_INCORRECT: "Incorrect password entered",
     SIGNIN_SUCCESS: "Successfully signed in.",
-
+    SIGNUP_SUCCESS: "Account created successfully.",
 
     // Error messages
     ERROR_MESSAGE: "Some error has occcurred.",
