@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { TripsItem } from ".";
+
+interface TripsItem {
+    id: number;
+    departureLocation: string;
+    departureTime: string;
+    arrivalLocation: string;
+    arrivalTime: string;
+    travelDuration: number;
+}
 
 interface TripsProps {
     trips: TripsItem[];

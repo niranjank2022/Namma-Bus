@@ -6,9 +6,10 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Welcome from "./components/welcome";
 import Navbar from "./components/navbar";
 import Login from "./pages/Login";
+import AddBus from "./pages/Addbus";
 import UserHome from "./components/userHome";
 import AdminHome from "./components/adminHome";
-import AddBus from "./pages/Addbus";
+
 
 function App() {
   return (
