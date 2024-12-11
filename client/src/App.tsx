@@ -1,32 +1,27 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import React, { useState } from "react";
+import "font-awesome/css/font-awesome.min.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import Welcome from "./components/welcome";
 import Navbar from "./components/navbar";
-import Login from "./components/login";
+import Login from "./pages/Login";
 import UserHome from "./components/userHome";
+import AdminHome from "./components/adminHome";
+import AddBus from "./pages/Addbus";
 
 function App() {
-
-  const [logged, setLogged] = useState(false);
-
-
   return (
     <>
-
-
-
       <Router>
 
-        <Navbar logged={logged} setLogged={setLogged}></Navbar>
+        <Navbar />
         <Routes>
-
           <Route path="/" element={<Welcome />} />
-          <Route path="/login" element={<Login logged={logged} setLogged={setLogged} />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/user/home" element={<UserHome />} />
-
+          <Route path="/admin/home" element={<AdminHome />} />
+          <Route path="/admin/add-bus" element={<AddBus />} />
         </Routes>
 
       </Router>

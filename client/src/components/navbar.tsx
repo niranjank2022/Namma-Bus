@@ -1,13 +1,7 @@
-import React, { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
 
-interface HeaderProps {
-    logged: boolean;
-    setLogged: (value: boolean | ((prevVal: boolean) => boolean)) => void
-}
-
-export default function myHeader(props: HeaderProps): JSX.Element {
+export default function myHeader(): JSX.Element {
 
     const navigate = useNavigate();
 
@@ -29,14 +23,15 @@ export default function myHeader(props: HeaderProps): JSX.Element {
                                 <a href="#" className="nav-link">Contact</a>
                             </li>
 
-                            {props.logged &&
+                            {sessionStorage.getItem("logged") === "true" &&
                                 <li className="nav-item dropdown">
                                     <a href="#" className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">
                                         <ul className="dropdown-menu">
-                                            <li><a href="#" className="dropdown-item btn" onClick={() => {
-                                                props.setLogged(false);
+                                            <li><button className="dropdown-item btn" onClick={() => {
+                                                sessionStorage.clear();
+                                                sessionStorage.setItem("logged", "false");
                                                 navigate("/");
-                                            }}>Logout</a></li>
+                                            }}>Logout</button></li>
                                         </ul>
                                     </a>
                                 </li>

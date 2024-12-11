@@ -1,0 +1,8 @@
+.grid-container {
+    margin: 0; /* Reset container margins */
+    padding: 0; /* Reset container padding */
+}
+
+.grid-item {
+    margin: 0; /* Reset grid item margins */
+}

@@ -3,11 +3,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { LoginBarProps, FormFields, UserResponse } from "./interfaces";
+import { FormFields, UserResponse } from "./interfaces";
 import UserLogin from "./userLogin";
 import AdminLogin from "./adminLogin";
 
-export default function loginbar(props: LoginBarProps) {
+export default function Login() {
 
     const navigate = useNavigate();
     const [isAdmin, setIsAdmin] = useState(false);
@@ -45,14 +45,17 @@ export default function loginbar(props: LoginBarProps) {
             },
             body: JSON.stringify(requestBody)
         });
+        const userRes: UserResponse = await res.json();
 
         if (res.ok) {
-            props.setLogged(true)
-            alert("Login Successful!");
+            sessionStorage.setItem("logged", "true");
+            sessionStorage.setItem("JWT", userRes.token);
+            sessionStorage.setItem("userId", userRes.userId);
+            alert(userRes.message);
             navigate("/admin/home");
         }
         else {
-            alert("Invalid login credentials");
+            alert(userRes.message);
         }
     }
 
@@ -74,14 +77,17 @@ export default function loginbar(props: LoginBarProps) {
             },
             body: JSON.stringify(requestBody)
         });
+        const userRes: UserResponse = await res.json();
 
         if (res.ok) {
-            props.setLogged(true)
-            alert("Login Successful!");
+            sessionStorage.setItem("logged", "true");
+            sessionStorage.setItem("JWT", userRes.token);
+            sessionStorage.setItem("userId", userRes.userId);
+            alert(userRes.message);
             navigate("/user/home");
         }
         else {
-            alert("Invalid login credentials");
+            alert(userRes.message);
         }
     }
 
@@ -101,10 +107,11 @@ export default function loginbar(props: LoginBarProps) {
             body: JSON.stringify(requestBody)
         });
         const userRes: UserResponse = await res.json();
-        console.log(res, userRes);
 
         if (res.ok) {
-            props.setLogged(true)
+            sessionStorage.setItem("logged", "true");
+            sessionStorage.setItem("JWT", userRes.token);
+            sessionStorage.setItem("userId", userRes.userId);
             alert(userRes.message);
             navigate("/user/home");
         }
@@ -140,7 +147,6 @@ export default function loginbar(props: LoginBarProps) {
                         </span>
                     </div>
                 </div>
-
             </div>
         </>
     );

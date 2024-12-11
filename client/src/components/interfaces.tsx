@@ -1,11 +1,46 @@
-export interface LoginBarProps {
-    logged: boolean;
-    setLogged: (value: boolean | ((prevVal: boolean) => boolean)) => void
+export interface User {
+    username: string;
+    emkail: string;
 }
+
+export interface Seat {
+    tag: string;
+    price: number;
+    assignee?: User;
+}
+
+export interface Bus {
+    _id: string;
+    busNo: string;
+    busName: string;
+    departureTime: string;
+    departureLocation: string;
+    arrivalTime: string;
+    arrivalLocation: string;
+    travelDuration: number;
+    seats: Seat[];
+}
+
+export interface ViewBusResponse {
+    buses: Bus[];
+    message: string;
+}
+
 
 export interface UserResponse {
     message: string;
-    token?: string;
+    token: string;
+    userId: string;
+}
+
+export interface AddFormFields {
+    busNo: string;
+    busName: string;
+    departureTime: string;
+    departureLocation: string;
+    arrivalTime: string,
+    arrivalLocation: string;
+    travelDuration: number;
 }
 
 export interface FormFields {
