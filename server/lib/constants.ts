@@ -32,6 +32,7 @@ export const MESSAGES = Object.freeze({
     RECORD_EXISTS: "Record already exists",
     DELETE_SUCCESS: "Successfully deleted",
     BOOK_SUCCESS: "Successfuly ticket has been booked",
+    ADD_TRIP_SUCCESS: "Successfuly trip has been added",
     RESET_FAILURE: "Resetting bus failed.",
 
     // Authentication messages

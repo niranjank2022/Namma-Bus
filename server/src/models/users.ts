@@ -4,7 +4,7 @@ import { NextFunction } from "express";
 import { MESSAGES } from "../../lib/constants";
 
 export interface IBookedTicket {
-  busId: string;
+  tripId: string;
   seatId: string;
   createdAt?: Date;
 }
@@ -14,11 +14,10 @@ export interface IUser {
   username: string;
   email: string;
   password: string;
-  isAdmin: boolean;
   bookedTickets: IBookedTicket[];
   isValidPassword(passwd: string): Promise<boolean>;
   cancelTicket(
-    busId: string,
+    tripId: string,
     seatId: string,
   ): Promise<{
     success: boolean;
@@ -28,7 +27,7 @@ export interface IUser {
 }
 
 const bookedTicketSchema = new Schema<IBookedTicket>({
-  busId: {
+  tripId: {
     type: String,
     required: true,
   },
@@ -55,10 +54,6 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
   },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
   bookedTickets: {
     type: [bookedTicketSchema],
     default: [],
@@ -79,13 +74,13 @@ userSchema.methods.isValidPassword = async function (passwd: string) {
 };
 
 userSchema.methods.cancelTicket = async function (
-  busId: string,
+  tripId: string,
   seatId: string,
 ) {
   try {
     var ticketIndex: number = this.bookedTickets.findIndex(
       (ticket: IBookedTicket) =>
-        ticket.busId === busId && ticket.seatId === seatId,
+        ticket.tripId === tripId && ticket.seatId === seatId,
     );
     if (ticketIndex == -1) {
       return { success: false, message: MESSAGES.RECORD_NOT_FOUND };
@@ -94,6 +89,7 @@ userSchema.methods.cancelTicket = async function (
     this.bookedTickets.splice(ticketIndex, 1);
     await this.save();
     return { success: true, message: MESSAGES.DELETE_SUCCESS };
+    
   } catch (error) {
     return { success: false, message: MESSAGES.ERROR_MESSAGE, error };
   }

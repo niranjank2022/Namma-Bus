@@ -1,11 +1,15 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { User } from "../models/users";
-import { Bus, ISeat } from "../models/buses";
+import { Bus } from "../models/buses";
+import { Trip, ISeat } from "../models/trips";
 import { MESSAGES } from "../../lib/constants";
+import { CustomJwtPayload, CustomRequest } from "../../lib/interfaces";
+import mongoose from "mongoose";
 
-export async function getBuses(req: Request, res: Response) {
+
+export async function searchTrips(req: CustomRequest, res: Response) {
   try {
-    const buses = await Bus.find({});
+    const buses = await Bus.find(req.query);
     if (!buses || !buses.length) {
       res.status(204).json({
         message: MESSAGES.RECORD_NOT_FOUND,
@@ -22,19 +26,20 @@ export async function getBuses(req: Request, res: Response) {
   }
 }
 
-export async function bookTicket(req: Request, res: Response) {
+export async function bookTicket(req: CustomRequest, res: Response) {
   try {
-    const busId = req.params.busId;
-    const { seatTag, username, email } = req.body;
 
-    const bus = await Bus.findOne({ _id: busId });
+    const { tripId, seatId, username, email } = req.body;
+    const trip = await Trip.findOne({ _id: tripId });
     const user = await User.findOne({ email, username });
-    if (!bus) {
+
+    if (!trip) {
       res.status(400).json({
         message: MESSAGES.RECORD_NOT_FOUND,
       });
       return;
     }
+
     if (!user) {
       res.status(400).json({
         message: MESSAGES.RECORD_NOT_FOUND,
@@ -42,27 +47,29 @@ export async function bookTicket(req: Request, res: Response) {
       return;
     }
 
-    const seat = bus.seats.find((seat: ISeat) => seat.tag === seatTag);
-    if (!seat) {
+    const seatIndex = trip.seats.findIndex((seat: ISeat) => seat._id === seatId);
+    if (seatIndex == -1) {
       res.status(400).json({
         message: MESSAGES.RECORD_NOT_FOUND,
       });
       return;
     }
-    if (seat.assignee) {
+
+    if (trip.seats[seatIndex].assignee) {
       res.status(400).json({
         message: MESSAGES.RECORD_EXISTS,
       });
       return;
     }
 
-    seat.assignee = { username, email };
-    user.bookedTickets.push({ busId, seatId: seat._id.toString() });
+    trip.seats[seatIndex].assignee = { username, email };
+    user.bookedTickets.push({ tripId, seatId: trip.seats[seatIndex]._id.toString() });
 
-    await bus.save();
+    await trip.save();
     await user.save();
 
-    res.json({ bus, user, message: MESSAGES.BOOK_SUCCESS });
+    res.json({ trip, user, message: MESSAGES.BOOK_SUCCESS });
+
   } catch (error) {
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
@@ -71,10 +78,10 @@ export async function bookTicket(req: Request, res: Response) {
   }
 }
 
-export async function getBookedBuses(req: Request, res: Response) {
+export async function getBookedTickets(req: CustomRequest, res: Response) {
   try {
-    const { email, username } = req.body;
-    const user = await User.findOne({ email, username });
+    const { userId } = req.user as CustomJwtPayload;
+    const user = await User.findById(new mongoose.Types.ObjectId(userId))
     if (!user) {
       res.status(404).json({
         message: MESSAGES.USER_NOT_FOUND,
@@ -84,8 +91,8 @@ export async function getBookedBuses(req: Request, res: Response) {
 
     var responseData = [];
     for (const ticket of user.bookedTickets) {
-      const bus = await Bus.findOne({ _id: ticket.busId });
-      responseData.push({ ticketData: ticket, busData: bus });
+      const trip = await Trip.findOne({ _id: ticket.tripId });
+      responseData.push({ ticketDetails: ticket, tripDetails: trip });
     }
 
     if (!responseData.length) {
@@ -94,6 +101,7 @@ export async function getBookedBuses(req: Request, res: Response) {
     }
 
     res.json({ tickets: responseData });
+
   } catch (error) {
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
@@ -102,12 +110,13 @@ export async function getBookedBuses(req: Request, res: Response) {
   }
 }
 
-export async function cancelTicket(req: Request, res: Response) {
+export async function cancelTicket(req: CustomRequest, res: Response) {
   try {
-    const { busId, seatId, email, username } = req.body;
-    const user = await User.findOne({ email, username });
-    const bus = await Bus.findOne({ _id: busId });
-    if (!bus) {
+    const { tripId, seatId } = req.params;
+    const { userId } = (req.user as CustomJwtPayload);
+    const user = await User.findOne({ _id: userId });
+    const trip = await Trip.findOne({ _id: tripId });
+    if (!trip) {
       res.status(404).json({
         message: MESSAGES.RECORD_NOT_FOUND,
       });
@@ -120,32 +129,27 @@ export async function cancelTicket(req: Request, res: Response) {
       return;
     }
 
-    const userIndex = user.bookedTickets.findIndex(
-      (ticket) => ticket.busId === busId && ticket.seatId === seatId,
+    const status = await user.cancelTicket(tripId, seatId);
+    if (!status.success) {
+      res.status(400).json(MESSAGES.RESET_FAILURE);
+      return;
+    }
+
+    const seatIndex = trip.seats.findIndex(
+      (seat) => seat.assignee && seat.assignee.email === user.email,
     );
-    if (userIndex === -1) {
+    if (seatIndex === -1) {
       res.status(404).json({
         message: MESSAGES.RECORD_NOT_FOUND,
       });
       return;
     }
 
-    const busSeat = bus.seats.find(
-      (seat) => seat.assignee && seat.assignee.email === email,
-    );
-    if (!busSeat) {
-      res.status(404).json({
-        message: MESSAGES.RECORD_NOT_FOUND,
-      });
-      return;
-    }
+    trip.seats[seatIndex] = null;
+    await trip.save();
 
-    user.bookedTickets.splice(userIndex, 1);
-    busSeat.assignee = null;
-
-    await bus.save();
-    await user.save();
     res.json(user);
+
   } catch (error) {
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,

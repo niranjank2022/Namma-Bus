@@ -1,20 +1,35 @@
-import { Request, Response } from "express";
+import mongoose from "mongoose";
+import { Response } from "express";
 import { User } from "../models/users";
 import { Bus } from "../models/buses";
+import { Admin } from "../models/admins";
+import { ISeat, Trip } from "../models/trips";
 import { MESSAGES } from "../../lib/constants";
+import { CustomRequest, CustomJwtPayload } from "../../lib/interfaces";
 
-export async function getBuses(req: Request, res: Response) {
+
+export async function getBuses(req: CustomRequest, res: Response) {
   try {
-    const buses = await Bus.find({});
-    if (!buses || !buses.length) {
+    const { userId } = (req.user as CustomJwtPayload);
+    const admin = await Admin.findById(new mongoose.Types.ObjectId(userId));
+    if (!admin) {
+      res.status(404).json({
+        message: "User not found"
+      });
+      return;
+    }
+
+    if (!admin.buses || !admin.buses.length) {
       res.status(204).json({
         message: MESSAGES.RECORD_NOT_FOUND,
       });
       return;
     }
 
-    res.json(buses);
+    res.json({ buses: admin.buses });
+
   } catch (error) {
+
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
       error,
@@ -22,8 +37,72 @@ export async function getBuses(req: Request, res: Response) {
   }
 }
 
-export async function addBus(req: Request, res: Response) {
+export async function getTrips(req: CustomRequest, res: Response) {
   try {
+    const busId = req.params.busId;
+    const trips = await Trip.find({ busId: busId });
+
+    if (!trips || !trips.length) {
+      res.status(204).json({
+        message: MESSAGES.RECORD_NOT_FOUND,
+      });
+      return;
+    }
+
+    res.json({ trips });
+  } catch (error) {
+
+    res.status(500).json({
+      message: MESSAGES.ERROR_MESSAGE,
+      error,
+    });
+  }
+}
+
+export async function addTrip(req: CustomRequest, res: Response) {
+  try {
+    const tripExists = await Trip.findOne(req.body);
+    if (tripExists) {
+      res.status(400).json({
+        message: MESSAGES.RECORD_EXISTS,
+      });
+      return;
+    }
+
+    const busId = req.params.busId;
+
+    const bus = await Bus.findById(new mongoose.Types.ObjectId(busId));
+
+    const trip = await Trip.create(req.body);
+    bus.trips.push(trip._id.toString());
+    trip.busId = bus._id.toString();
+
+    const seats: ISeat[] = [];
+    const size = bus.seatsLayout.bottomCol * bus.seatsLayout.bottomRow + bus.seatsLayout.topLeftCol * bus.seatsLayout.topLeftRow + bus.seatsLayout.topRightCol * bus.seatsLayout.topRightRow;
+    for (let i = 0; i < size; i++)
+      seats.push({ tag: `${bus.tagSeries}${i + 1}` });
+
+    trip.seats = seats;
+
+    await trip.save();
+    await bus.save();
+
+    res.json({
+      message: MESSAGES.ADD_TRIP_SUCCESS
+    })
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: MESSAGES.ERROR_MESSAGE,
+      error,
+    });
+  }
+}
+
+export async function addBus(req: CustomRequest, res: Response) {
+  try {
+    const { userId } = (req.user as CustomJwtPayload);
     const { busNo, busName } = req.body;
     var bus = await Bus.findOne({ busNo, busName });
 
@@ -33,7 +112,12 @@ export async function addBus(req: Request, res: Response) {
     }
 
     bus = await Bus.create(req.body);
+    const admin = await Admin.findOne({ _id: userId });
+    admin.buses.push(bus);
+
+    await admin.save();
     res.json(bus);
+
   } catch (error) {
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
@@ -42,17 +126,17 @@ export async function addBus(req: Request, res: Response) {
   }
 }
 
-export async function resetBus(req: Request, res: Response) {
+export async function resetTrip(req: CustomRequest, res: Response) {
   try {
-    const bus = await Bus.findById(req.params.busId);
-    if (!bus) {
+    const trip = await Trip.findById(req.params.tripId);
+    if (!trip) {
       res.status(404).json({
         message: MESSAGES.RECORD_NOT_FOUND,
       });
       return;
     }
 
-    for (const seat of bus.seats) {
+    for (const seat of trip.seats) {
       if (!seat.assignee) continue;
 
       const user = await User.findOne({ email: seat.assignee.email });
@@ -62,7 +146,7 @@ export async function resetBus(req: Request, res: Response) {
       }
 
       const status = await user.cancelTicket(
-        bus._id.toString(),
+        trip._id.toString(),
         seat._id.toString(),
       );
       if (!status.success) {
@@ -73,8 +157,9 @@ export async function resetBus(req: Request, res: Response) {
       seat.assignee = null;
     }
 
-    await bus.save();
-    res.json(bus);
+    await trip.save();
+    res.json(trip);
+
   } catch (error) {
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
