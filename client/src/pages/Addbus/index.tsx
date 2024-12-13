@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 import Trips from "./trips";
 import BusLayout from "./busLayout";
+import { CustomResponse } from "../../components/interfaces";
+
 
 export interface TripsItem {
     id: number;
@@ -21,6 +23,8 @@ export default function AddBus() {
         busName: "",
         busNo: "",
         busType: "",
+        price: 0,
+        tagSeries: ""
     });
     const [trips, setTrips] = useState<TripsItem[]>([]);
 
@@ -29,20 +33,57 @@ export default function AddBus() {
     const [bottom, setBottom] = useState<{ row: number, col: number }>({ row: 1, col: 1 });
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData(prevState => { return { ...prevState, [event.target.name]: Number(event.target.value) } });
+        setFormData(prevState => { return { ...prevState, [event.target.name]: event.target.value } });
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        // setBusFields(prevState => { return { ...prevState, seats: seats } });
 
-        // const res = await fetch("http://localhost:3000/admin/buses/", {
-        //     method: "GET",
-        //     headers: {
-        //         "Authorization": "Bearer " + sessionStorage.getItem("JWT")
-        //     },
-        //     body: JSON.stringify(busFields)
-        // });
+        // Adding the bus data
+        const res1 = await fetch("http://localhost:3000/admin/buses", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${sessionStorage.getItem("JWT")}`
+            },
+            body: JSON.stringify({
+                ...formData,
+                seatsLayout: {
+                    topLeftRow: topLeft.row,
+                    topLeftCol: topLeft.col,
+                    topRightRow: topRight.row,
+                    topRightCol: topRight.col,
+                    bottomRow: bottom.row,
+                    bottomCol: bottom.col
+                },
+            })
+        });
+
+        if (!res1.ok) {
+            console.log(res1.json())
+            console.log(res1 as CustomResponse);
+            return;
+        }
+        
+        const res1Obj = await res1.json();console.log(res1Obj)
+        const busId = res1Obj._id;
+
+        // Adding the trips data
+        trips.forEach(async (trip, _) => {
+            var res2 = await fetch(`http://localhost:3000/admin/buses/${busId}/trips`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionStorage.getItem("JWT")}`
+                },
+                body: JSON.stringify(trip)
+            });
+            if (!res2.ok) {
+                console.log(trip, " not added. Error occurred.", res1Obj);
+                return;
+            }
+        });
+
         navigate("/admin/home");
     };
 
@@ -79,6 +120,14 @@ export default function AddBus() {
                                 <label className="formLabel" htmlFor="busName">Bus Type</label>
                                 <input className="formControl" type="text" id="busType" name="busType" value={formData.busType} onChange={handleChange} required />
                             </div>
+                            <div>
+                                <label className="formLabel" htmlFor="busName">Ticket Price</label>
+                                <input className="formControl" type="number" id="price" name="price" value={formData.price} onChange={handleChange} required />
+                            </div>
+                            <div>
+                                <label className="formLabel" htmlFor="busName">Ticket Tag Series</label>
+                                <input className="formControl" type="text" id="tagSeries" name="tagSeries" value={formData.tagSeries} onChange={handleChange} required />
+                            </div>
 
                             <div style={{ display: "flex", justifyContent: "space-around" }}>
                                 <button className="btn btn-primary" onClick={nextStep}>
@@ -111,7 +160,6 @@ export default function AddBus() {
                     <Trips trips={trips} setTrips={setTrips} prevStep={prevStep} nextStep={nextStep} />
                 </>
             );
-
 
         default:
             return (

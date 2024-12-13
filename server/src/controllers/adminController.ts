@@ -61,7 +61,8 @@ export async function getTrips(req: CustomRequest, res: Response) {
 
 export async function addTrip(req: CustomRequest, res: Response) {
   try {
-    const tripExists = await Trip.findOne(req.body);
+    const busId = req.params.busId;
+    const tripExists = await Trip.findOne({ ...req.body, busId });
     if (tripExists) {
       res.status(400).json({
         message: MESSAGES.RECORD_EXISTS,
@@ -69,11 +70,8 @@ export async function addTrip(req: CustomRequest, res: Response) {
       return;
     }
 
-    const busId = req.params.busId;
-
     const bus = await Bus.findById(new mongoose.Types.ObjectId(busId));
-
-    const trip = await Trip.create(req.body);
+    const trip = await Trip.create({ ...req.body, busId });
     bus.trips.push(trip._id.toString());
     trip.busId = bus._id.toString();
 
@@ -128,6 +126,8 @@ export async function addBus(req: CustomRequest, res: Response) {
 
 export async function resetTrip(req: CustomRequest, res: Response) {
   try {
+    const tripId = req.params.tripId; console.log(tripId);
+
     const trip = await Trip.findById(req.params.tripId);
     if (!trip) {
       res.status(404).json({
@@ -135,7 +135,6 @@ export async function resetTrip(req: CustomRequest, res: Response) {
       });
       return;
     }
-
     for (const seat of trip.seats) {
       if (!seat.assignee) continue;
 

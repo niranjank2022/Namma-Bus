@@ -52,7 +52,7 @@ export default function Trips(props: TripsProps) {
         setCurrentItem({
             id: 0,
             departureLocation: "",
-            departureTime: "",
+            departureTime: "0",
             arrivalLocation: "",
             arrivalTime: "",
             travelDuration: 0,
@@ -88,7 +88,7 @@ export default function Trips(props: TripsProps) {
                     className="form-control mb-2"
                 />
                 <input
-                    type="text"
+                    type="time"
                     name="departureTime"
                     placeholder="Enter Departure Time"
                     value={currentItem.departureTime}
@@ -104,7 +104,7 @@ export default function Trips(props: TripsProps) {
                     className="form-control mb-2"
                 />
                 <input
-                    type="text"
+                    type="time"
                     name="arrivalTime"
                     placeholder="Enter Arrival Time"
                     value={currentItem.arrivalTime}

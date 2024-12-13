@@ -9,7 +9,9 @@ import Login from "./pages/Login";
 import AddBus from "./pages/Addbus";
 import UserHome from "./components/userHome";
 import AdminHome from "./components/adminHome";
+import ViewTrips from "./components/viewTrips";
 
+// import AdminHome from "./components/adminHome";
 
 function App() {
   return (
@@ -17,16 +19,17 @@ function App() {
       <Router>
 
         <Navbar />
+        
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/user/home" element={<UserHome />} />
           <Route path="/admin/home" element={<AdminHome />} />
           <Route path="/admin/add-bus" element={<AddBus />} />
+          <Route path="/admin/home/:busId/trips" element={<ViewTrips />} />
         </Routes>
 
       </Router>
-
     </>
   );
 }

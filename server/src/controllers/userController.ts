@@ -29,9 +29,11 @@ export async function searchTrips(req: CustomRequest, res: Response) {
 export async function bookTicket(req: CustomRequest, res: Response) {
   try {
 
-    const { tripId, seatId, username, email } = req.body;
+    const tripId = req.params.tripId;
+    const { seatId, username, email } = req.body;
     const trip = await Trip.findOne({ _id: tripId });
     const user = await User.findOne({ email, username });
+
 
     if (!trip) {
       res.status(400).json({
@@ -47,15 +49,16 @@ export async function bookTicket(req: CustomRequest, res: Response) {
       return;
     }
 
-    const seatIndex = trip.seats.findIndex((seat: ISeat) => seat._id === seatId);
-    if (seatIndex == -1) {
+    const seatIndex = trip.seats.findIndex((seat: ISeat) => seat._id.toString() === seatId);
+    if (seatIndex === -1) {
       res.status(400).json({
         message: MESSAGES.RECORD_NOT_FOUND,
       });
+
       return;
     }
 
-    if (trip.seats[seatIndex].assignee) {
+    if (trip.seats[seatIndex].assignee !== undefined) {
       res.status(400).json({
         message: MESSAGES.RECORD_EXISTS,
       });

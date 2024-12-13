@@ -1,4 +1,4 @@
-import { UserLoginProps } from "./interfaces";
+import { UserLoginProps } from "./../../components/interfaces";
 
 
 export default function userLogin(props: UserLoginProps) {

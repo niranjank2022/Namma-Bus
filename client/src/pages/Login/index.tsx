@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { FormFields, UserResponse } from "./interfaces";
+import { FormFields, UserResponse } from "./../../components/interfaces";
 import UserLogin from "./userLogin";
 import AdminLogin from "./adminLogin";
 
@@ -31,9 +31,20 @@ export default function Login() {
         password: ""
     });
 
+    const [adminSignupFields, setAdminSignupFields] = useState<FormFields>({
+        email: "",
+        username: "",
+        password: ""
+    });
+
     const handleAdminSigninChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setAdminSigninFields(prevState => { return { ...prevState, [event.target.name]: event.target.value } });
     }
+
+    const handleAdminSignupChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setAdminSignupFields(prevState => { return { ...prevState, [event.target.name]: event.target.value } });
+    }
+
 
     const handleAdminSigninSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -91,6 +102,35 @@ export default function Login() {
         }
     }
 
+    const handleAdminSignupSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (adminSignupFields.password != adminSignupFields.confirm_password) {
+            alert("Passwords do not match!");
+            return;
+        }
+
+        const requestBody = { ...adminSignupFields, isAdmin };
+        const res = await fetch("http://localhost:3000/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(requestBody)
+        });
+        const userRes: UserResponse = await res.json();
+
+        if (res.ok) {
+            sessionStorage.setItem("logged", "true");
+            sessionStorage.setItem("JWT", userRes.token);
+            sessionStorage.setItem("userId", userRes.userId);
+            alert(userRes.message);
+            navigate("/admin/home");
+        }
+        else {
+            alert(userRes.message);
+        }
+    }
+
     const handleSignupSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (signupFields.password != signupFields.confirm_password) {
@@ -129,6 +169,9 @@ export default function Login() {
                     {isAdmin ? (<AdminLogin
                         handleAdminSigninSubmit={handleAdminSigninSubmit}
                         handleAdminSigninChange={handleAdminSigninChange}
+                        handleAdminSignupChange={handleAdminSignupChange}
+                        handleAdminSignupSubmit={handleAdminSignupSubmit}
+                        adminSignupFields={adminSignupFields}
                         adminSigninFields={adminSigninFields}
                     />) :
                         (<UserLogin
