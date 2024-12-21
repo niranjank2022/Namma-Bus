@@ -28,7 +28,7 @@ app.use(cors());
 // Adding the routes to the app
 app.use(authRoutes);
 app.use("/admin", authorizeJWT, adminRoutes);
-app.use("/user", authorizeJWT, userRoutes);
+app.use("/user", userRoutes);
 
 // App is listening for requests from clients in specified PORT
 app.listen(VARIABLES.PORT, () => {

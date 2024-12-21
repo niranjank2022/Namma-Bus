@@ -1,23 +1,31 @@
 import { Response } from "express";
 import { User } from "../models/users";
-import { Bus } from "../models/buses";
 import { Trip, ISeat } from "../models/trips";
 import { MESSAGES } from "../../lib/constants";
 import { CustomJwtPayload, CustomRequest } from "../../lib/interfaces";
 import mongoose from "mongoose";
+import { Bus } from "../models/buses";
 
 
 export async function searchTrips(req: CustomRequest, res: Response) {
   try {
-    const buses = await Bus.find(req.query);
-    if (!buses || !buses.length) {
-      res.status(204).json({
+
+    const trips = await Trip.find(req.query);
+
+    if (!trips || trips.length === 0) {
+      res.status(404).json({
         message: MESSAGES.RECORD_NOT_FOUND,
       });
       return;
     }
 
-    res.json(buses);
+    var layouts = [];
+    for (const trip of trips) {
+      let bus = await Bus.findOne({ _id: trip.busId });
+      layouts.push(bus.seatsLayout);
+    }
+
+    res.json({ trips, layouts });
   } catch (error) {
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,

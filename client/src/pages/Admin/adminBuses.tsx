@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { IBus, ViewBusResponse } from "./interfaces";
-import React from "react";
+import { IBus, ViewBusResponse } from "./../../components/interfaces";
+
 
 export default function AdminHome() {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export default function AdminHome() {
         <div className="d-flex justify-content-end mb-3">
           <button
             className="btn btn-primary"
-            onClick={() => navigate("/admin/add-bus")}
+            onClick={() => navigate("/admin/buses/add-bus")}
           >
             Add Bus
           </button>
@@ -63,7 +63,7 @@ export default function AdminHome() {
                   <button
                     className="btn btn-secondary"
                     onClick={() =>
-                      navigate(`/admin/home/${bus._id}/trips`, {
+                      navigate(`/admin/buses/${bus._id}/trips`, {
                         state: { seatsLayout: bus.seatsLayout },
                       })
                     }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { ITrip, ViewTripsResponse } from "./interfaces";
+import { ITrip, ViewTripsResponse } from "./../../components/interfaces";
 import ViewSeats from "./viewSeats";
 import React from "react";
 

@@ -3,35 +3,36 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "font-awesome/css/font-awesome.min.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import Welcome from "./components/welcome";
 import Navbar from "./components/navbar";
-import Login from "./pages/Login";
+
+import UserLogin from "./pages/User/userLogin";
+import UserSearch from "./pages/User/userSearch";
+import ViewTrips from "./pages/User/viewTrips";
+
+import AdminLogin from "./pages/Admin/adminLogin";
+import AdminBuses from "./pages/Admin/adminBuses";
+import AdminTrips from "./pages/Admin/adminTrips";
 import AddBus from "./pages/Addbus";
-import UserHome from "./components/userHome";
-import AdminHome from "./components/adminHome";
-import ViewTrips from "./components/viewTrips";
 
-// import AdminHome from "./components/adminHome";
 
-function App() {
+export default function App() {
   return (
     <>
       <Router>
 
         <Navbar />
-        
-        <Routes>
-          <Route path="/" element={<Welcome />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/user/home" element={<UserHome />} />
-          <Route path="/admin/home" element={<AdminHome />} />
-          <Route path="/admin/add-bus" element={<AddBus />} />
-          <Route path="/admin/home/:busId/trips" element={<ViewTrips />} />
-        </Routes>
 
+        <Routes>
+          <Route element={<UserLogin />} path="/login" />
+          <Route element={<UserSearch />} path="/" />
+          <Route element={<ViewTrips />} path="/buses/search" />
+
+          <Route element={<AdminLogin />} path="/admin/login" />
+          <Route element={<AdminBuses />} path="/admin/buses" />
+          <Route element={<AddBus />} path="/admin/buses/add-bus" />
+          <Route element={<AdminTrips />} path="/admin/buses/:busId/trips" />
+        </Routes>
       </Router>
     </>
   );
 }
-
-export default App;

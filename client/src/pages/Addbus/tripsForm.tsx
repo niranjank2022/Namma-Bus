@@ -104,7 +104,7 @@ export default function Trips(props: TripsProps) {
                     className="form-control mb-2"
                 />
                 <input
-                    type="time"
+                    type="date"
                     name="arrivalTime"
                     placeholder="Enter Arrival Time"
                     value={currentItem.arrivalTime}

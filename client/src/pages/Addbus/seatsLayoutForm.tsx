@@ -1,5 +1,5 @@
 import SeatsGrid from "./seatsGrid";
-import Counter from "./counter";
+import Counter from "./rowColCounter";
 
 interface BusLayoutProps {
     prevStep: () => void;

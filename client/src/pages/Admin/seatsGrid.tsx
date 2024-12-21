@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ISeat } from "./interfaces";
+import { useState } from "react";
+import { ISeat } from "./../../components/interfaces";
 
 interface SeatsGridProps {
     seats: ISeat[];

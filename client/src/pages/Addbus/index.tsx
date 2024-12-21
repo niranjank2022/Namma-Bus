@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import Trips from "./trips";
-import BusLayout from "./busLayout";
+import Trips from "./tripsForm";
+import BusLayout from "./seatsLayoutForm";
 import { CustomResponse } from "../../components/interfaces";
 
 
@@ -64,8 +64,8 @@ export default function AddBus() {
             console.log(res1 as CustomResponse);
             return;
         }
-        
-        const res1Obj = await res1.json();console.log(res1Obj)
+
+        const res1Obj = await res1.json(); console.log(res1Obj)
         const busId = res1Obj._id;
 
         // Adding the trips data

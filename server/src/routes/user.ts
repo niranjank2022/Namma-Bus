@@ -3,7 +3,7 @@ import {
   bookTicket,
   cancelTicket,
   getBookedTickets,
-  searchTrips,
+  searchTrips
 } from "../controllers/userController";
 
 const router = express.Router();
