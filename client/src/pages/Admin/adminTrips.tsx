@@ -4,6 +4,7 @@ import { ITrip, ViewTripsResponse } from "./../../components/interfaces";
 import ViewSeats from "./viewSeats";
 import React from "react";
 
+
 export default function ViewTrips() {
     const { busId } = useParams();
     const [trips, setTrips] = useState<ITrip[]>([]);
@@ -63,7 +64,6 @@ export default function ViewTrips() {
                             <th>Departure Time</th>
                             <th>Arrival Location</th>
                             <th>Arrival Time</th>
-                            <th>Travel Duration</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -74,10 +74,9 @@ export default function ViewTrips() {
                                     <tr>
                                         <th>{i + 1}</th>
                                         <td>{trip.departureLocation}</td>
-                                        <td>{trip.departureTime}</td>
+                                        <td>{trip.departureDateTime.slice(0, 10)} {trip.departureDateTime.slice(11, 16)}</td>
                                         <td>{trip.arrivalLocation}</td>
-                                        <td>{trip.arrivalTime}</td>
-                                        <td>{trip.travelDuration}</td>
+                                        <td>{trip.arrivalDateTime.slice(0, 10)} {trip.arrivalDateTime.slice(11, 16)}</td>
                                         <td>
                                             <button
                                                 type="button"

@@ -20,12 +20,12 @@ export async function getBuses(req: CustomRequest, res: Response) {
     }
 
     if (!admin.buses || !admin.buses.length) {
-      res.status(204).json({
+      res.status(200).json({
+        buses: [],
         message: MESSAGES.RECORD_NOT_FOUND,
       });
       return;
     }
-
     res.json({ buses: admin.buses });
 
   } catch (error) {
@@ -43,8 +43,9 @@ export async function getTrips(req: CustomRequest, res: Response) {
     const trips = await Trip.find({ busId: busId });
 
     if (!trips || !trips.length) {
-      res.status(204).json({
+      res.status(200).json({
         message: MESSAGES.RECORD_NOT_FOUND,
+        trips: []
       });
       return;
     }
@@ -62,7 +63,11 @@ export async function getTrips(req: CustomRequest, res: Response) {
 export async function addTrip(req: CustomRequest, res: Response) {
   try {
     const busId = req.params.busId;
-    const tripExists = await Trip.findOne({ ...req.body, busId });
+    var { departureDateTime, departureLocation, arrivalDateTime, arrivalLocation } = req.body;
+    departureDateTime = new Date(departureDateTime);
+    arrivalDateTime = new Date(arrivalDateTime);
+
+    const tripExists = await Trip.findOne({ busId, departureLocation, departureDateTime, arrivalLocation, arrivalDateTime });
     if (tripExists) {
       res.status(400).json({
         message: MESSAGES.RECORD_EXISTS,
@@ -71,7 +76,7 @@ export async function addTrip(req: CustomRequest, res: Response) {
     }
 
     const bus = await Bus.findById(new mongoose.Types.ObjectId(busId));
-    const trip = await Trip.create({ ...req.body, busId });
+    const trip = await Trip.create({ busId, departureLocation, departureDateTime, arrivalLocation, arrivalDateTime });
     bus.trips.push(trip._id.toString());
     trip.busId = bus._id.toString();
 
@@ -90,7 +95,6 @@ export async function addTrip(req: CustomRequest, res: Response) {
     })
 
   } catch (error) {
-
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
       error,
@@ -108,15 +112,18 @@ export async function addBus(req: CustomRequest, res: Response) {
       res.status(400).json({ message: MESSAGES.RECORD_EXISTS });
       return;
     }
+    console.log(req.body);
 
     bus = await Bus.create(req.body);
+    console.log("SHit happended", userId);
     const admin = await Admin.findOne({ _id: userId });
     admin.buses.push(bus);
-
+    
     await admin.save();
     res.json(bus);
-
+    
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
       error,
@@ -135,6 +142,7 @@ export async function resetTrip(req: CustomRequest, res: Response) {
       });
       return;
     }
+
     for (const seat of trip.seats) {
       if (!seat.assignee) continue;
 
@@ -144,11 +152,8 @@ export async function resetTrip(req: CustomRequest, res: Response) {
         return;
       }
 
-      const status = await user.cancelTicket(
-        trip._id.toString(),
-        seat._id.toString(),
-      );
-      if (!status.success) {
+      const cancellationStatus = await user.cancelTicket(seat.assignee.ticketId);
+      if (!cancellationStatus.success) {
         res.status(400).json(MESSAGES.RESET_FAILURE);
         return;
       }

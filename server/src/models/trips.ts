@@ -1,24 +1,25 @@
 import mongoose, { Schema, Model } from "mongoose";
 
-export interface IBookedUser {
+
+interface IBookedUser {
     username: string;
     email: string;
+    ticketId: string;
 }
 
 export interface ISeat {
     _id?: mongoose.Types.ObjectId;
     tag: string;
-    assignee?: IBookedUser;
+    assignee?: IBookedUser | null;
 }
 
 export interface ITrip {
     _id: mongoose.Types.ObjectId;
     busId: string;
-    departureTime: string;
+    departureDateTime: Date;
     departureLocation: string;
-    arrivalTime: string;
+    arrivalDateTime: Date;
     arrivalLocation: string;
-    travelDuration: number;
     seats: ISeat[];
 }
 
@@ -31,6 +32,10 @@ const bookedUserSchema = new Schema<IBookedUser>({
         type: String,
         required: true,
     },
+    ticketId: {
+        type: String,
+        required: true,
+    },
 });
 
 export const seatSchema = new Schema<ISeat>({
@@ -40,6 +45,7 @@ export const seatSchema = new Schema<ISeat>({
     },
     assignee: {
         type: bookedUserSchema,
+        default: null,
     },
 });
 
@@ -48,24 +54,20 @@ const tripSchema = new Schema<ITrip>({
         type: String,
         required: true,
     },
-    departureTime: {
-        type: String,
+    departureDateTime: {
+        type: Date,
         required: true,
     },
     departureLocation: {
         type: String,
         required: true,
     },
-    arrivalTime: {
-        type: String,
+    arrivalDateTime: {
+        type: Date,
         required: true,
     },
     arrivalLocation: {
         type: String,
-        required: true,
-    },
-    travelDuration: {
-        type: Number,
         required: true,
     },
     seats: {

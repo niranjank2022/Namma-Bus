@@ -2,44 +2,26 @@ import mongoose, { Schema, Model } from "mongoose";
 import bcrypt from "bcrypt";
 import { NextFunction } from "express";
 import { MESSAGES } from "../../lib/constants";
+import { Ticket } from "./tickets";
+import { TicketStatus } from "../../lib/enums";
 
-export interface IBookedTicket {
-  tripId: string;
-  seatId: string;
-  createdAt?: Date;
-}
 
-export interface IUser {
+export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   username: string;
   email: string;
   password: string;
-  bookedTickets: IBookedTicket[];
+  tickets: string[];
+
   isValidPassword(passwd: string): Promise<boolean>;
   cancelTicket(
-    tripId: string,
-    seatId: string,
+    ticketId: string
   ): Promise<{
     success: boolean;
     message: string;
     error?: any;
   }>;
 }
-
-const bookedTicketSchema = new Schema<IBookedTicket>({
-  tripId: {
-    type: String,
-    required: true,
-  },
-  seatId: {
-    type: String,
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
 
 const userSchema = new Schema<IUser>({
   username: {
@@ -54,17 +36,17 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
   },
-  bookedTickets: {
-    type: [bookedTicketSchema],
+  tickets: {
+    type: [String],
     default: [],
   },
 });
 
 // Hashing the password before saving them into the database - Security
 userSchema.pre("save", async function (next: NextFunction) {
-  if (!this.isModified("password")) return next();
-
-  this.password = await bcrypt.hash(this.password, 10);
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
   next();
 });
 
@@ -73,23 +55,24 @@ userSchema.methods.isValidPassword = async function (passwd: string) {
   return await bcrypt.compare(passwd, this.password);
 };
 
+// Method to cancel the booked ticket
 userSchema.methods.cancelTicket = async function (
-  tripId: string,
-  seatId: string,
+  ticketId: string
 ) {
   try {
-    var ticketIndex: number = this.bookedTickets.findIndex(
-      (ticket: IBookedTicket) =>
-        ticket.tripId === tripId && ticket.seatId === seatId,
-    );
+    var ticketIndex: number = this.tickets.findIndex((_ticketId: string) => _ticketId === ticketId);
     if (ticketIndex == -1) {
       return { success: false, message: MESSAGES.RECORD_NOT_FOUND };
     }
 
-    this.bookedTickets.splice(ticketIndex, 1);
+    const ticket = await Ticket.findOne({ _id: this.tickets[ticketIndex] });
+    ticket.status = TicketStatus.Cancelled;
+    this.tickets.splice(ticketIndex, 1);
+
     await this.save();
+    await ticket.save();
     return { success: true, message: MESSAGES.DELETE_SUCCESS };
-    
+
   } catch (error) {
     return { success: false, message: MESSAGES.ERROR_MESSAGE, error };
   }

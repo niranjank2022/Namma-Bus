@@ -1,12 +1,13 @@
 import { useState } from "react";
 
-interface TripsItem {
+export interface TripsItem {
     id: number;
     departureLocation: string;
     departureTime: string;
+    departureDate: string;
     arrivalLocation: string;
     arrivalTime: string;
-    travelDuration: number;
+    arrivalDate: string;
 }
 
 interface TripsProps {
@@ -22,9 +23,10 @@ export default function Trips(props: TripsProps) {
         id: 0,
         departureLocation: "",
         departureTime: "",
+        departureDate: "",
         arrivalLocation: "",
         arrivalTime: "",
-        travelDuration: 0,
+        arrivalDate: "",
     });
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -52,10 +54,11 @@ export default function Trips(props: TripsProps) {
         setCurrentItem({
             id: 0,
             departureLocation: "",
-            departureTime: "0",
+            departureDate: "",
+            departureTime: "",
             arrivalLocation: "",
+            arrivalDate: "",
             arrivalTime: "",
-            travelDuration: 0,
         });
     };
 
@@ -75,54 +78,83 @@ export default function Trips(props: TripsProps) {
 
     return (
         <div className="container mt-4">
-            <h3>Trip Details</h3>
+            <h3>Trip Details</h3> <hr />
 
             {/* Form to add/edit trips */}
             <div className="mb-3">
-                <input
-                    type="text"
-                    name="departureLocation"
-                    placeholder="Enter Departure Location"
-                    value={currentItem.departureLocation}
-                    onChange={handleInputChange}
-                    className="form-control mb-2"
-                />
-                <input
-                    type="time"
-                    name="departureTime"
-                    placeholder="Enter Departure Time"
-                    value={currentItem.departureTime}
-                    onChange={handleInputChange}
-                    className="form-control mb-2"
-                />
-                <input
-                    type="text"
-                    name="arrivalLocation"
-                    placeholder="Enter Arrival Location"
-                    value={currentItem.arrivalLocation}
-                    onChange={handleInputChange}
-                    className="form-control mb-2"
-                />
-                <input
-                    type="date"
-                    name="arrivalTime"
-                    placeholder="Enter Arrival Time"
-                    value={currentItem.arrivalTime}
-                    onChange={handleInputChange}
-                    className="form-control mb-2"
-                />
-                <input
-                    type="number"
-                    name="travelDuration"
-                    placeholder="Enter Travel Duration"
-                    value={currentItem.travelDuration}
-                    onChange={handleInputChange}
-                    className="form-control mb-2"
-                />
-                <button onClick={handleSaveItem} className="btn btn-primary">
+                <div className="row">
+                    {/* Departure Details */}
+                    <div className="col-md-6">
+                        <h5>Departure Details</h5>
+                        <input
+                            type="text"
+                            name="departureLocation"
+                            placeholder="Enter Departure Location"
+                            value={currentItem.departureLocation}
+                            onChange={handleInputChange}
+                            className="form-control mb-2"
+                        />
+                        <label htmlFor="departureDate">Select Departure Date</label>
+                        <input
+                            type="date"
+                            id="departureDate"
+                            name="departureDate"
+                            placeholder="Enter Departure Date"
+                            value={currentItem.departureDate}
+                            onChange={handleInputChange}
+                            className="form-control mb-2"
+                        />
+                        <label htmlFor="departureTime">Select Departure Time</label>
+                        <input
+                            type="time"
+                            id="departureTime"
+                            name="departureTime"
+                            placeholder="Enter Departure Time"
+                            value={currentItem.departureTime}
+                            onChange={handleInputChange}
+                            className="form-control mb-2"
+                        />
+                    </div>
+
+                    {/* Arrival Details */}
+                    <div className="col-md-6">
+                        <h5>Arrival Details</h5>
+                        <input
+                            type="text"
+                            name="arrivalLocation"
+                            placeholder="Enter Arrival Location"
+                            value={currentItem.arrivalLocation}
+                            onChange={handleInputChange}
+                            className="form-control mb-2"
+                        />
+                        <label htmlFor="arrivalDate">Select Arrival Date</label>
+                        <input
+                            type="date"
+                            id="arrivalDate"
+                            name="arrivalDate"
+                            placeholder="Enter Arrival Date"
+                            value={currentItem.arrivalDate}
+                            onChange={handleInputChange}
+                            className="form-control mb-2"
+                        />
+                        <label htmlFor="arrivalTime">Select Arrival Time</label>
+                        <input
+                            type="time"
+                            id="arrivalTime"
+                            name="arrivalTime"
+                            placeholder="Enter Arrival Time"
+                            value={currentItem.arrivalTime}
+                            onChange={handleInputChange}
+                            className="form-control mb-2"
+                        />
+                    </div>
+                </div>
+
+                <button onClick={handleSaveItem} className="btn btn-primary mt-3">
                     {editingIndex !== null ? "Update Item" : "Add Item"}
                 </button>
             </div>
+
 
             {/* Dropdown to view/edit trips */}
             {trips.length > 0 && (
@@ -144,31 +176,44 @@ export default function Trips(props: TripsProps) {
                                 {/* Expandable content */}
                                 {expandedIndex === index && (
                                     <div className="mt-2">
-                                        <p>
-                                            <strong>Departure Time:</strong>{" "}
-                                            {item.departureTime}
-                                        </p>
-                                        <p>
-                                            <strong>Arrival Time:</strong>{" "}
-                                            {item.arrivalTime}
-                                        </p>
-                                        <p>
-                                            <strong>Travel Duration:</strong>{" "}
-                                            {item.travelDuration} hours
-                                        </p>
-                                        <button
-                                            onClick={() => handleEdit(index)}
-                                            className="btn btn-sm btn-warning me-2"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(index)}
-                                            className="btn btn-sm btn-danger"
-                                        >
-                                            Delete
-                                        </button>
+                                        <div className="row">
+                                            {/* Departure Details */}
+                                            <div className="col-md-6">
+                                                <p>
+                                                    <strong>Departure Date:</strong> {item.departureDate}
+                                                </p>
+                                                <p>
+                                                    <strong>Departure Time:</strong> {item.departureTime}
+                                                </p>
+                                            </div>
+                                            {/* Arrival Details */}
+                                            <div className="col-md-6">
+                                                <p>
+                                                    <strong>Arrival Date:</strong> {item.arrivalDate}
+                                                </p>
+                                                <p>
+                                                    <strong>Arrival Time:</strong> {item.arrivalTime}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="mt-2">
+                                            <button
+                                                onClick={() => handleEdit(index)}
+                                                className="btn btn-sm btn-warning me-2"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(index)}
+                                                className="btn btn-sm btn-danger"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
+
                                 )}
                             </li>
                         ))}

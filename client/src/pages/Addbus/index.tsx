@@ -3,26 +3,16 @@ import { useNavigate } from "react-router-dom";
 
 import Trips from "./tripsForm";
 import BusLayout from "./seatsLayoutForm";
-import { CustomResponse } from "../../components/interfaces";
+import { TripsItem } from "./tripsForm";
 
-
-export interface TripsItem {
-    id: number;
-    departureLocation: string;
-    arrivalLocation: string;
-    departureTime: string;
-    arrivalTime: string;
-    travelDuration: number;
-}
 
 export default function AddBus() {
     const navigate = useNavigate();
     const [step, setstep] = useState(1);
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{ busName: string, busNo: string, price: number, tagSeries: string }>({
         busName: "",
         busNo: "",
-        busType: "",
         price: 0,
         tagSeries: ""
     });
@@ -60,31 +50,36 @@ export default function AddBus() {
         });
 
         if (!res1.ok) {
-            console.log(res1.json())
-            console.log(res1 as CustomResponse);
+            console.log("HI", await res1.json())
             return;
         }
 
-        const res1Obj = await res1.json(); console.log(res1Obj)
+        const res1Obj = await res1.json();
         const busId = res1Obj._id;
 
         // Adding the trips data
-        trips.forEach(async (trip, _) => {
+        for (const trip of trips) {
             var res2 = await fetch(`http://localhost:3000/admin/buses/${busId}/trips`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${sessionStorage.getItem("JWT")}`
                 },
-                body: JSON.stringify(trip)
+                body: JSON.stringify({
+                    busId,
+                    departureLocation: trip.departureLocation,
+                    arrivalLocation: trip.arrivalLocation,
+                    departureDateTime: `${trip.departureDate}T${trip.departureTime}:00`,
+                    arrivalDateTime: `${trip.arrivalDate}T${trip.arrivalTime}:00`
+                })
             });
             if (!res2.ok) {
                 console.log(trip, " not added. Error occurred.", res1Obj);
                 return;
             }
-        });
+        }
 
-        navigate("/admin/home");
+        navigate("/admin/buses");
     };
 
     const nextStep = () => {
@@ -115,10 +110,6 @@ export default function AddBus() {
                             <div>
                                 <label className="formLabel" htmlFor="busName">Bus Name</label>
                                 <input className="formControl" type="text" id="busName" name="busName" value={formData.busName} onChange={handleChange} required />
-                            </div>
-                            <div>
-                                <label className="formLabel" htmlFor="busName">Bus Type</label>
-                                <input className="formControl" type="text" id="busType" name="busType" value={formData.busType} onChange={handleChange} required />
                             </div>
                             <div>
                                 <label className="formLabel" htmlFor="busName">Ticket Price</label>

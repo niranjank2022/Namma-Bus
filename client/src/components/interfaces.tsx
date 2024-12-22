@@ -20,22 +20,22 @@ export interface IBus {
 export interface IBookedUser {
     username: string;
     email: string;
+    tickedTd: string;
 }
 
 export interface ISeat {
     _id?: string;
     tag: string;
-    assignee?: IBookedUser;
+    assignee?: IBookedUser | null;
 }
 
 export interface ITrip {
     _id: string;
     busId: string;
-    departureTime: string;
+    departureDateTime: string;
     departureLocation: string;
-    arrivalTime: string;
+    arrivalDateTime: string;
     arrivalLocation: string;
-    travelDuration: number;
     seats: ISeat[];
 }
 
@@ -53,16 +53,6 @@ export interface UserResponse extends Response {
     message: string;
     token: string;
     userId: string;
-}
-
-export interface AddFormFields {
-    busNo: string;
-    busName: string;
-    departureTime: string;
-    departureLocation: string;
-    arrivalTime: string,
-    arrivalLocation: string;
-    travelDuration: number;
 }
 
 export interface FormFields {

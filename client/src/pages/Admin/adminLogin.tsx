@@ -60,7 +60,7 @@ export default function Login() {
             return;
         }
 
-        const requestBody = { ...adminSignupFields };
+        const requestBody = { ...adminSignupFields, isAdmin: true };
         const res = await fetch("http://localhost:3000/register", {
             method: "POST",
             headers: {
