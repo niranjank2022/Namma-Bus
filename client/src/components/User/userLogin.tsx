@@ -1,5 +1,4 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -9,29 +8,30 @@ export default function Login() {
 
     const navigate = useNavigate();
 
-    const [adminSigninFields, setAdminSigninFields] = useState<FormFields>({
+    const [signupFields, setSignupFields] = useState<FormFields>({
+        email: "",
+        username: "",
+        password: "",
+        confirm_password: ""
+    });
+
+    const [signinFields, setSigninFields] = useState<FormFields>({
         email: "",
         username: "",
         password: ""
     });
 
-    const [adminSignupFields, setAdminSignupFields] = useState<FormFields>({
-        email: "",
-        username: "",
-        password: ""
-    });
-
-    const handleAdminSigninChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setAdminSigninFields(prevState => { return { ...prevState, [event.target.name]: event.target.value } });
+    const handleSigninChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSigninFields(prevState => { return { ...prevState, [event.target.name]: event.target.value } });
     }
 
-    const handleAdminSignupChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setAdminSignupFields(prevState => { return { ...prevState, [event.target.name]: event.target.value } });
+    const handleSignupChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSignupFields(prevState => { return { ...prevState, [event.target.name]: event.target.value } });
     }
 
-    const handleAdminSigninSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSigninSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const requestBody = { ...adminSigninFields, isAdmin: true };
+        const requestBody = { ...signinFields };
         const res = await fetch("http://localhost:3000/login", {
             method: "POST",
             headers: {
@@ -46,21 +46,21 @@ export default function Login() {
             sessionStorage.setItem("JWT", userRes.token);
             sessionStorage.setItem("userId", userRes.userId);
             alert(userRes.message);
-            navigate("/admin/buses");
+            navigate("/"); {/* need to update the nav link to seat booked section restoring its previous state */ }
         }
         else {
             alert(userRes.message);
         }
     }
 
-    const handleAdminSignupSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSignupSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (adminSignupFields.password != adminSignupFields.confirm_password) {
+        if (signupFields.password != signupFields.confirm_password) {
             alert("Passwords do not match!");
             return;
         }
 
-        const requestBody = { ...adminSignupFields, isAdmin: true };
+        const requestBody = { ...signupFields };
         const res = await fetch("http://localhost:3000/register", {
             method: "POST",
             headers: {
@@ -75,7 +75,7 @@ export default function Login() {
             sessionStorage.setItem("JWT", userRes.token);
             sessionStorage.setItem("userId", userRes.userId);
             alert(userRes.message);
-            navigate("/admin/buses");
+            navigate("/"); {/* need to update the nav link to seat booked section restoring its previous state */ }
         }
         else {
             alert(userRes.message);
@@ -102,20 +102,19 @@ export default function Login() {
                     </div>
                     <div className="card-body">
                         <div className="tab-content">
-                            <h3>Admin - Login</h3>
                             <div className="tab-pane active show fade" id="signin" role="tabpanel">
-                                <form onSubmit={handleAdminSigninSubmit}>
+                                <form onSubmit={handleSigninSubmit}>
                                     <div>
                                         <label className="form-label" htmlFor="signin-email">Email</label>
-                                        <input className="form-control" id="signin-email" type="email" name="email" onChange={handleAdminSigninChange} value={adminSigninFields["email"]} required />
+                                        <input className="form-control" id="signin-email" type="email" name="email" onChange={handleSigninChange} value={signinFields["email"]} required />
                                     </div>
                                     <div>
                                         <label className="form-label" htmlFor="signin-username">Username</label>
-                                        <input className="form-control" id="signin-username" type="text" name="username" onChange={handleAdminSigninChange} value={adminSigninFields["username"]} required />
+                                        <input className="form-control" id="signin-username" type="text" name="username" onChange={handleSigninChange} value={signinFields["username"]} required />
                                     </div>
                                     <div>
                                         <label className="form-label" htmlFor="signin-password">Password</label>
-                                        <input className="form-control" id="signin-password" type="password" name="password" onChange={handleAdminSigninChange} value={adminSigninFields["password"]} required />
+                                        <input className="form-control" id="signin-password" type="password" name="password" onChange={handleSigninChange} value={signinFields["password"]} required />
                                     </div>
                                     <div>
                                         <button className="btn btn-primary">Sign In</button>
@@ -123,22 +122,22 @@ export default function Login() {
                                 </form>
                             </div>
                             <div className="tab-pane show fade" id="signup" role="tabpanel">
-                                <form onSubmit={handleAdminSignupSubmit}>
+                                <form onSubmit={handleSignupSubmit}>
                                     <div>
                                         <label className="form-label" htmlFor="signup-email">Email</label>
-                                        <input className="form-control" id="signup-email" type="email" name="email" onChange={handleAdminSignupChange} value={adminSignupFields["email"]} required />
+                                        <input className="form-control" id="signup-email" type="email" name="email" onChange={handleSignupChange} value={signupFields["email"]} required />
                                     </div>
                                     <div>
                                         <label className="form-label" htmlFor="signup-username">Username</label>
-                                        <input className="form-control" id="signup-username" type="text" name="username" onChange={handleAdminSignupChange} value={adminSignupFields["username"]} required />
+                                        <input className="form-control" id="signup-username" type="text" name="username" onChange={handleSignupChange} value={signupFields["username"]} required />
                                     </div>
                                     <div>
                                         <label className="form-label" htmlFor="signup-password">Password</label>
-                                        <input className="form-control" id="signup-password" type="password" name="password" onChange={handleAdminSignupChange} value={adminSignupFields["password"]} required />
+                                        <input className="form-control" id="signup-password" type="password" name="password" onChange={handleSignupChange} value={signupFields["password"]} required />
                                     </div>
                                     <div>
                                         <label className="form-label" htmlFor="signup-cpassword">Confirm Password</label>
-                                        <input className="form-control" id="signup-cpassword" type="password" name="confirm_password" onChange={handleAdminSignupChange} value={adminSignupFields["confirm_password"]} required />
+                                        <input className="form-control" id="signup-cpassword" type="password" name="confirm_password" onChange={handleSignupChange} value={signupFields["confirm_password"]} required />
                                     </div>
                                     <div>
                                         <button className="btn btn-primary">Sign Up</button>

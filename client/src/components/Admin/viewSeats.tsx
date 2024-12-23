@@ -1,4 +1,4 @@
-import { ISeatsLayout, ISeat } from "../../components/interfaces";
+import { ISeatsLayout, ISeat } from "../interfaces";
 import SeatsGrid from "./seatsGrid";
 
 interface ViewSeatsProps {

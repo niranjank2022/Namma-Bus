@@ -83,7 +83,6 @@ export default function Trips(props: TripsProps) {
             {/* Form to add/edit trips */}
             <div className="mb-3">
                 <div className="row">
-                    {/* Departure Details */}
                     <div className="col-md-6">
                         <h5>Departure Details</h5>
                         <input
@@ -116,7 +115,6 @@ export default function Trips(props: TripsProps) {
                         />
                     </div>
 
-                    {/* Arrival Details */}
                     <div className="col-md-6">
                         <h5>Arrival Details</h5>
                         <input
@@ -155,8 +153,6 @@ export default function Trips(props: TripsProps) {
                 </button>
             </div>
 
-
-            {/* Dropdown to view/edit trips */}
             {trips.length > 0 && (
                 <div>
                     <h4>Trips Added</h4>

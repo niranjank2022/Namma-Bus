@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { IBus, ViewBusResponse } from "./../../components/interfaces";
+import { IBus, ViewBusResponse } from "../interfaces";
 
 
 export default function AdminHome() {

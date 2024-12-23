@@ -1,40 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ISeatsLayout, ITrip } from "../../components/interfaces";
+import { ISeatsLayout, ITrip } from "../interfaces";
+
+
+export interface SearchData {
+    trip: ITrip,
+    busName: string,
+    tagSeries: string,
+    layout: ISeatsLayout,
+    price: number,
+    seatsAvailable: number,
+    duration: number
+}
 
 export default function UserSearch() {
     const navigate = useNavigate();
-    const [departureLocation, setDepartureLocation] = useState("");
-    const [arrivalLocation, setArrivalLocation] = useState("");
-    const [journeyDate, setJourneyDate] = useState("");
+    const [departureLocation, setDepartureLocation] = useState(sessionStorage.getItem("departureLocation") || "");
+    const [arrivalLocation, setArrivalLocation] = useState(sessionStorage.getItem("arrivalLocation") || "");
+    const [journeyDate, setJourneyDate] = useState(sessionStorage.getItem("journeyDate") || "");
 
     const handleSearch = async () => {
 
-        var queries = {};
-        if (departureLocation !== "")
-            queries = { ...queries, "departureLocation": departureLocation };
-        if (arrivalLocation !== "")
-            queries = { ...queries, "arrivalLocation": arrivalLocation };
-        if (journeyDate !== "")
-            queries = { ...queries, "journeyDate": journeyDate };
+        if (departureLocation === "" || arrivalLocation === "" || journeyDate === "")
+            return;
 
-        const query = new URLSearchParams(queries).toString()
-        const res = await fetch("http://localhost:3000/user/trips/search?" + query, {
-            method: "GET",
-            headers: {
-                "Authorization": "Bearer " + sessionStorage.getItem("JWT"),
-            }
-        });
-
-        if (res.ok) {
-            const resObj: { trips: ITrip[], layouts: ISeatsLayout[] } = await res.json();
-            const { trips, layouts } = resObj;
-            navigate("/buses/search?" + query, { state: { trips, layouts } });
-        }
-        else {
-            navigate("/buses/search?" + query, { state: { trips: [], layouts: [] } });
-        }
+        const queries = { departureLocation, arrivalLocation, journeyDate };
+        const query = new URLSearchParams(queries).toString(); console.log(query);
+        navigate("/buses/search?" + query);
     };
+
+    useEffect(() => {
+        sessionStorage.setItem("departureLocation", departureLocation);
+        sessionStorage.setItem("arrivalLocation", arrivalLocation);
+        sessionStorage.setItem("journeyDate", journeyDate);
+    }, [departureLocation, arrivalLocation, journeyDate]);
 
     return (
         <div

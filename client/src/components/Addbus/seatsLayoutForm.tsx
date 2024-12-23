@@ -32,20 +32,16 @@ export default function BusLayout(props: BusLayoutProps) {
                 <h1>Set your bus layout</h1>
 
                 <div className="container">
-                    {/* Top row with 2 columns: Left and Right */}
                     <div className="row m-0 pb-4">
-                        {/* Top Left Section */}
                         <div className="col-auto pe-5 m-0">
                             <SeatsGrid rowCol={topLeft} />
                         </div>
 
-                        {/* Top Right Section */}
                         <div className="col-auto ps-5 m-0">
                             <SeatsGrid rowCol={topRight} />
                         </div>
                     </div>
 
-                    {/* Bottom row with 1 column */}
                     <div className="row m-0 pt-0">
                         <div className="col m-0">
                             <SeatsGrid rowCol={bottom} />

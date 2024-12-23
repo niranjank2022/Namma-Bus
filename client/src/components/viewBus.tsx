@@ -1,9 +1,8 @@
-import React from "react";
+
 
 export default function ViewBus() {
   return (
     <>
-      {/* Button to trigger modal */}
       <button
         type="button"
         className="btn btn-primary"
@@ -13,7 +12,6 @@ export default function ViewBus() {
         Open Large Modal
       </button>
 
-      {/* Modal */}
       <div
         className="modal fade"
         id="largeModal"

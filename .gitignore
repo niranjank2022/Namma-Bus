@@ -4,3 +4,5 @@ server/dist/
 server/eslint.config.mjs
 server/.env
 Namma-Bus.code-workspace
+server/package-lock.json
+client/package-lock.json
