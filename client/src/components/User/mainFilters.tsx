@@ -17,7 +17,8 @@ export default function MainFilters() {
             return;
 
         const queries = { departureLocation, arrivalLocation, journeyDate };
-        const query = new URLSearchParams(queries).toString(); console.log(query);
+        const query = new URLSearchParams(queries).toString();
+        setApplyingFilters(false);
         navigate("/buses/search?" + query);
     };
 
@@ -62,7 +63,7 @@ export default function MainFilters() {
                         />
                     </div>
                     <div className="col-auto">
-                        <button className="btn btn-primary" onClick={() => { setApplyingFilters(false); handleSearch(); }}>
+                        <button className="btn btn-primary" onClick={() => { handleSearch(); }}>
                             Submit
                         </button>
                     </div>

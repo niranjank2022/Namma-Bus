@@ -32,10 +32,12 @@ export async function getProfileDetails(req: CustomRequest, res: Response) {
 export async function searchTrips(req: CustomRequest, res: Response) {
 
   try {
-    const { departureLocation, arrivalLocation, journeyDate } = req.query;
+    var { departureLocation, arrivalLocation, journeyDate } = req.query;
     const startOfDay = new Date(`${journeyDate}T00:00:00.000Z`);
     const endOfDay = new Date(`${journeyDate}T23:59:59.999Z`);
-
+    departureLocation = (departureLocation as string).toLocaleLowerCase();
+    arrivalLocation = (arrivalLocation as string).toLocaleLowerCase();
+    journeyDate = (journeyDate as string).toLocaleLowerCase();
     const trips = await Trip.find({ departureLocation, arrivalLocation, departureDateTime: { $gte: startOfDay, $lte: endOfDay } });
     if (!trips || trips.length === 0) {
       res.status(404).json({
@@ -52,7 +54,7 @@ export async function searchTrips(req: CustomRequest, res: Response) {
       var seatsAvailable = 0;
 
       for (const seat of trip.seats) {
-        if (seat.assignee === null)
+        if (seat === null || seat.assignee === null)
           seatsAvailable++;
       }
 
@@ -70,6 +72,7 @@ export async function searchTrips(req: CustomRequest, res: Response) {
     res.json({ data });
 
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
       error,
@@ -99,7 +102,7 @@ export async function bookTicket(req: CustomRequest, res: Response) {
       return;
     }
 
-    const seatIndex = trip.seats.findIndex((seat: ISeat) => seat._id.toString() === seatId);
+    const seatIndex = trip.seats.findIndex((seat: ISeat) => seat && seat._id.toString() === seatId);
     if (seatIndex === -1) {
       res.status(400).json({
         message: MESSAGES.RECORD_NOT_FOUND,
@@ -123,7 +126,7 @@ export async function bookTicket(req: CustomRequest, res: Response) {
 
     res.json({ trip, user, message: MESSAGES.BOOK_SUCCESS });
 
-  } catch (error) {
+  } catch (error) { console.log(error);
     res.status(500).json({
       message: MESSAGES.ERROR_MESSAGE,
       error,
