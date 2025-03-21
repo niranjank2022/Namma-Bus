@@ -2,14 +2,16 @@ import express from "express";
 import {
   bookTicket,
   cancelTicket,
-  getBookedBuses,
-  getBuses,
+  getBookedTickets,
+  getProfileDetails,
+  searchTrips
 } from "../controllers/userController";
 
 const router = express.Router();
-router.get("/buses", getBuses);
-router.post("/buses/book-ticket/:busId", bookTicket);
-router.get("/buses/booked", getBookedBuses);
-router.patch("/buses/booked/cancel-ticket/", cancelTicket);
+router.get("/trips/search", searchTrips);
+router.post("/trips/book-ticket/:tripId", bookTicket);
+router.get("/trips/booked-tickets", getBookedTickets);
+router.patch("/trips/booked-tickets/:tripId/cancel-ticket/:ticketId", cancelTicket);
+router.get("/profile", getProfileDetails);
 
 export default router;

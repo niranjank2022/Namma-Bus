@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { MESSAGES } from "../../lib/constants";
+import {CustomJwtPayload, CustomRequest} from "./../../lib/interfaces";
 
-interface CustomRequest extends Request {
-  user?: string | JwtPayload;
-}
 
 export function authorizeJWT(
   req: CustomRequest,
@@ -19,13 +17,12 @@ export function authorizeJWT(
 
   const authToken = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(authToken, process.env.JWT_SECRET_KEY);
-    req.user = decoded;
+    const decoded = jwt.verify(authToken, process.env.JWT_SECRET_KEY as string);
+    req.user = decoded as CustomJwtPayload;
     next();
   } catch (error) {
     res.status(403).json({
       message: MESSAGES.TOKEN_ERROR_MESSAGE,
-      error,
     });
   }
 }

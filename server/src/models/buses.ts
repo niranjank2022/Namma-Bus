@@ -1,60 +1,52 @@
 import mongoose, { Schema, Model } from "mongoose";
 
-export interface IBookedUser {
-  username: string;
-  email: string;
-}
-
-export interface ISeat {
-  _id: mongoose.Types.ObjectId;
-  tag: string;
-  class: string;
-  price: number;
-  assignee?: IBookedUser;
+interface ISeatsLayout {
+  topLeftRow: number,
+  topLeftCol: number,
+  topRightRow: number,
+  topRightCol: number,
+  bottomRow: number,
+  bottomCol: number,
 }
 
 export interface IBus {
   _id: mongoose.Types.ObjectId;
   busNo: string;
   busName: string;
-  departureTime: string;
-  departureLocation: string;
-  arrivalTime: string;
-  arrivalLocation: string;
-  travelDuration: number;
-  seats: ISeat[];
+  price: number;
+  tagSeries: string;
+  seatsLayout: ISeatsLayout;
+  trips: string[];
 }
 
-const bookedUserSchema = new Schema<IBookedUser>({
-  username: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-});
-
-const seatSchema = new Schema<ISeat>({
-  tag: {
-    type: String,
-    required: true,
-  },
-  class: {
-    type: String,
-    required: true,
-  },
-  price: {
+const seatsLayoutSchema = new Schema<ISeatsLayout>({
+  topLeftRow: {
     type: Number,
     required: true,
   },
-  assignee: {
-    type: bookedUserSchema,
+  topLeftCol: {
+    type: Number,
+    required: true,
+  },
+  topRightRow: {
+    type: Number,
+    required: true,
+  },
+  topRightCol: {
+    type: Number,
+    required: true,
+  },
+  bottomRow: {
+    type: Number,
+    required: true,
+  },
+  bottomCol: {
+    type: Number,
+    required: true,
   },
 });
 
-const busSchema = new Schema<IBus>({
+export const busSchema = new Schema<IBus>({
   busNo: {
     type: String,
     required: true,
@@ -63,30 +55,22 @@ const busSchema = new Schema<IBus>({
     type: String,
     required: true,
   },
-  departureTime: {
-    type: String,
-    required: true,
-  },
-  departureLocation: {
-    type: String,
-    required: true,
-  },
-  arrivalTime: {
-    type: String,
-    required: true,
-  },
-  arrivalLocation: {
-    type: String,
-    required: true,
-  },
-  travelDuration: {
+  price: {
     type: Number,
     required: true,
   },
-  seats: {
-    type: [seatSchema],
-    default: [],
+  tagSeries: {
+    type: String,
+    required: true,
   },
+  seatsLayout: {
+    type: seatsLayoutSchema,
+    required: true,
+  },
+  trips: {
+    type: [String],
+    default: [],
+  }
 });
 
 export const Bus: Model<IBus> = mongoose.model<IBus>("Bus", busSchema);

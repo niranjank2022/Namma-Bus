@@ -4,8 +4,11 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/auth";
 import adminRoutes from "./routes/admin";
 import userRoutes from "./routes/user";
+import generalRoutes from "./routes/general";
 import { authorizeJWT } from "./middlewares/authorizer";
 import { MESSAGES, VARIABLES } from "./../lib/constants";
+import cors from "cors";
+
 
 // Initializing the app instance
 const app: Application = express();
@@ -22,9 +25,11 @@ mongoose
 
 // Adding the middlewares to the app
 app.use(express.json());
+app.use(cors());
 
 // Adding the routes to the app
 app.use(authRoutes);
+app.use(generalRoutes);
 app.use("/admin", authorizeJWT, adminRoutes);
 app.use("/user", authorizeJWT, userRoutes);
 
